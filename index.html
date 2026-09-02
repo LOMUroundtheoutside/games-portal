@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Games Portal</title>
+<link id="favicon" rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%AE%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="#" data-nav="home">
+    <span class="brand-icon">🎮</span>
+    <span class="brand-name">Games Portal</span>
+  </a>
+  <div class="search">
+    <span class="search-icon">🔍</span>
+    <input id="search" type="search" placeholder="Search games…  (press /)" autocomplete="off">
+  </div>
+  <nav class="topnav">
+    <button class="icon-btn" id="btn-settings" title="Settings">⚙️</button>
+    <button class="panic" id="btn-panic" title="Panic! Jump to a safe page">
+      <span class="panic-dot"></span> <span>PANIC</span>
+      <kbd id="panic-key-label">`</kbd>
+    </button>
+  </nav>
+</header>
+
+<nav class="catbar">
+  <button class="chip active" data-cat="all">🏠 All</button>
+  <button class="chip" data-cat="favorites">⭐ Favourites</button>
+  <button class="chip" data-cat="recent">🕒 Recent</button>
+  <span class="chip-sep"></span>
+  <button class="chip" data-cat="arcade">🕹️ Arcade</button>
+  <button class="chip" data-cat="puzzle">🧩 Puzzle</button>
+  <button class="chip" data-cat="action">💥 Action</button>
+  <button class="chip" data-cat="classic">♟️ Classic</button>
+  <button class="chip" data-cat="custom">🔗 My links</button>
+  <span class="chip-count" id="stat-count"></span>
+</nav>
+
+<div class="layout">
+  <main class="content">
+    <section class="hero" id="hero">
+      <div>
+        <h1>Play anything, anywhere.</h1>
+        <p>Every game here runs right in this page – no other sites needed. Hit <kbd id="hero-key">`</kbd> or the red button and you're instantly on <span id="hero-safe">Microsoft Teams</span>.</p>
+      </div>
+      <button class="escape-big" id="btn-panic-hero"><span class="escape-icon">🚪</span><span><small>Quick escape to</small><b id="hero-safe-btn">Microsoft Teams</b></span></button>
+    </section>
+
+    <div class="section-head">
+      <h2 id="section-title">All games</h2>
+      <div class="sort">
+        <label>Sort <select id="sort">
+          <option value="name">A → Z</option>
+          <option value="plays">Most played</option>
+          <option value="new">Newest</option>
+        </select></label>
+      </div>
+    </div>
+
+    <div class="grid" id="grid"></div>
+    <div class="empty" id="empty" hidden>
+      <div class="empty-icon">🫥</div>
+      <p id="empty-text">Nothing here yet.</p>
+    </div>
+  </main>
+</div>
+
+<!-- Game player -->
+<div class="modal" id="player" hidden>
+  <div class="player-frame">
+    <div class="player-bar">
+      <div class="player-title"><span id="player-emoji"></span> <span id="player-name"></span></div>
+      <div class="player-score">Best: <b id="player-best">0</b></div>
+      <div class="player-actions">
+        <button class="mini" id="player-restart" title="Restart (R)">↻</button>
+        <button class="mini" id="player-fav" title="Favourite">☆</button>
+        <button class="mini" id="player-full" title="Fullscreen (F)">⛶</button>
+        <button class="mini" id="player-close" title="Close (Esc)">✕</button>
+      </div>
+    </div>
+    <div class="player-stage" id="stage"></div>
+    <div class="player-help" id="player-help"></div>
+  </div>
+</div>
+
+<!-- Settings -->
+<div class="modal" id="settings" hidden>
+  <div class="dialog">
+    <div class="dialog-head">
+      <h2>⚙️ Settings</h2>
+      <button class="mini" id="settings-close">✕</button>
+    </div>
+
+    <h3>🚨 Panic button</h3>
+    <p class="hint">Where should the panic button send you?</p>
+    <div class="presets" id="panic-presets"></div>
+    <label class="field">Custom URL
+      <input id="set-panic-url" type="url" placeholder="https://…">
+    </label>
+    <div class="row">
+      <label class="field">Hotkey
+        <input id="set-panic-key" type="text" readonly placeholder="click, then press a key">
+      </label>
+      <label class="field">Action
+        <select id="set-panic-mode">
+          <option value="replace">Replace this tab (no back button)</option>
+          <option value="same">Go there in this tab</option>
+          <option value="newtab">Open new tab + hide game</option>
+        </select>
+      </label>
+    </div>
+    <label class="check"><input type="checkbox" id="set-panic-dblesc" checked> Also panic when Escape is pressed twice quickly</label>
+
+    <h3>🎭 Tab disguise</h3>
+    <p class="hint">Change what the browser tab looks like.</p>
+    <div class="presets" id="cloak-presets"></div>
+    <div class="row">
+      <label class="field">Tab title <input id="set-cloak-title" type="text" placeholder="Games Portal"></label>
+      <label class="field">Icon URL <input id="set-cloak-icon" type="text" placeholder="https://…/favicon.ico"></label>
+    </div>
+
+    <h3>🎨 Look</h3>
+    <div class="row">
+      <label class="field">Theme
+        <select id="set-theme">
+          <option value="midnight">Midnight</option>
+          <option value="ocean">Ocean</option>
+          <option value="forest">Forest</option>
+          <option value="candy">Candy</option>
+          <option value="light">Light</option>
+        </select>
+      </label>
+      <label class="check"><input type="checkbox" id="set-sound" checked> Sound effects</label>
+    </div>
+
+    <h3>🔗 My links</h3>
+    <p class="hint">Add any game you find on the web. It opens inside this page.</p>
+    <div class="row">
+      <input id="add-name" type="text" placeholder="Name">
+      <input id="add-url" type="url" placeholder="https://…">
+      <button class="btn" id="add-link">Add</button>
+    </div>
+    <div id="custom-list" class="custom-list"></div>
+
+    <h3>🧹 Data</h3>
+    <div class="row">
+      <button class="btn ghost" id="export-data">Export settings</button>
+      <button class="btn ghost" id="import-data">Import</button>
+      <button class="btn danger" id="reset-data">Reset everything</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="games.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
