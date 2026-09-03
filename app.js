@@ -33,6 +33,10 @@ const CLOAK_PRESETS = [
   ['Khan Academy', 'Dashboard | Khan Academy', 'https://cdn.kastatic.org/images/favicon.ico'],
 ];
 const DEFAULT_ICON = document.getElementById('favicon').href;
+/* live site (github.io) vs the copy on your own computer: different tab icon and title so you can tell them apart */
+const IS_LIVE = /\.github\.io$/i.test(location.hostname);
+const emojiIcon = e => 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>${e}</text></svg>`);
+const SITE_ICON = IS_LIVE ? DEFAULT_ICON : emojiIcon('🛠️');
 
 let S = load();
 function load() { try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem('gp') || '{}') }; } catch { return { ...DEFAULTS }; } }
@@ -188,8 +192,9 @@ window.addEventListener('keydown', e => {
 
 /* ---------- cloak & theme ---------- */
 function applyCloak() {
-  document.title = S.cloakTitle || 'Games Portal';
-  $('#favicon').href = S.cloakIcon || DEFAULT_ICON;
+  document.title = S.cloakTitle || (IS_LIVE ? 'Games Portal' : 'Games Portal · DEV');
+  $('#favicon').href = S.cloakIcon || SITE_ICON;
+  $('#dev-tag').hidden = IS_LIVE; $('.brand-icon').textContent = IS_LIVE ? '🎮' : '🛠️';
 }
 function applyTheme() { document.documentElement.dataset.theme = S.theme; }
 function applyPanicUi() {

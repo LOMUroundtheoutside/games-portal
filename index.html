@@ -12,13 +12,14 @@
 <header class="topbar">
   <a class="brand" href="#" data-nav="home">
     <span class="brand-icon">🎮</span>
-    <span class="brand-name">Games Portal</span>
+    <span class="brand-name">Games Portal</span><span class="dev-tag" id="dev-tag" hidden>DEV</span>
   </a>
   <div class="search">
     <span class="search-icon">🔍</span>
     <input id="search" type="search" placeholder="Search games…  (press /)" autocomplete="off">
   </div>
   <nav class="topnav">
+    <button class="icon-btn chat-btn" id="btn-chat" title="Chat with friends">💬<span class="badge" id="chat-badge" hidden></span></button>
     <button class="icon-btn" id="btn-settings" title="Settings">⚙️</button>
     <button class="panic" id="btn-panic" title="Panic! Jump to a safe page">
       <span class="panic-dot"></span> <span>PANIC</span>
@@ -156,10 +157,31 @@
   </div>
 </div>
 
+<aside class="chat" id="chat" hidden>
+  <div class="chat-head">
+    <div><b>💬 Chat</b><span class="chat-status" id="chat-status">connecting…</span></div>
+    <button class="mini" id="chat-close" title="Close chat">✕</button>
+  </div>
+  <div class="chat-room">
+    <label class="field">Room code<input id="chat-room" maxlength="12" spellcheck="false" autocomplete="off"></label>
+    <label class="field">Your name<input id="chat-name" maxlength="16" placeholder="e.g. Theo" autocomplete="off"></label>
+    <button class="btn" id="chat-link" title="Copies a link that opens the site in this room">🔗 Invite link</button>
+    <button class="btn ghost" id="chat-new-room" title="Start a fresh room with a new code">New room</button>
+  </div>
+  <p class="hint chat-hint">Friends with the same room code see your messages. They go through a public relay, so keep it to game chat.</p>
+  <div class="chat-log" id="chat-log"></div>
+  <form class="chat-send" id="chat-form">
+    <input id="chat-input" placeholder="Say something…" autocomplete="off" maxlength="300">
+    <button class="btn" type="submit">Send</button>
+  </form>
+</aside>
+
 <div class="toast" id="toast" hidden></div>
 
 <script src="games.js"></script>
 <script src="racing.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.10.1/mqtt.min.js"></script>
 <script src="app.js"></script>
+<script src="chat.js"></script>
 </body>
 </html>

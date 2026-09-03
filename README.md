@@ -26,6 +26,22 @@ settings enable **Pages** from the main branch. It will be live at
   to the games. "Open new tab" keeps the portal but closes the game and switches
   the tab title/icon to the disguise.
 
+## Chat
+
+Click 💬 in the top bar. Everyone who enters the same **room code** sees each
+other's messages. "Copy invite link" gives you a link that opens the site already
+in your room, so send that to a friend. There is no server of our own: messages
+travel through a public MQTT relay over a websocket (HiveMQ, falling back to
+EMQX), so anyone who knows the room code can read them. Keep it to game chat.
+The last 150 messages of each room are kept in your browser only.
+
+## Live vs dev
+
+The live site is `https://lomuroundtheoutside.github.io/games-portal/`. When the
+page is opened from anywhere else (your own computer, a local server) it shows
+a **DEV** tag next to the name and a 🛠️ tab icon, so you can tell the two tabs
+apart. Tab disguise still wins over both when it is switched on.
+
 ## Tab disguise
 
 Settings → Tab disguise changes the browser tab's title and icon to look like
@@ -40,7 +56,8 @@ also allowed.
 | `style.css` | All styling; five colour themes live at the top in `:root` / `[data-theme]` |
 | `games.js` | The mini engine (`makeApi`) plus the 13 original games as objects in the `GAMES` array |
 | `racing.js` | The 20 racing games. Shared helpers live in `RC` (held-key tracker, car sprite, spline track) and three engines: `RC.road3d` (pseudo-3D road), `RC.circuit` (top-down track with AI rivals) and `RC.hills` (side-view terrain physics) |
-| `app.js` | Catalogue, search/sort, favourites, player, panic button, settings, storage |
+| `app.js` | Catalogue, search/sort, favourites, player, panic button, settings, storage, live/dev tab icon |
+| `chat.js` | The chat drawer: room codes, invite links, the MQTT relay connection, message log |
 
 ## Adding a game
 
