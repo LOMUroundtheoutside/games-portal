@@ -12,17 +12,18 @@ const fmtT = ms => { ms = Math.max(0, ms); const m = Math.floor(ms / 60000), s =
    SIDE-VIEW STUNT ENGINE — hand-made levels, two wheels joined by an axle
    (Flip Trail Moto, Wobble Wagon)
    Level terrain is a list of pieces: [type, length, param]
-     flat / hill(amp) / up(height) / down(height) / gap / seesaw / bridge / spikes / bump(h)
+     flat / hill(amp) / up(height) / down(height) / ramp(height) / gap / seesaw / bridge / spikes / bump(h)
+     up/down are S-curves that end flat; ramp is a straight kicker that keeps its exit angle (use it before gaps and spikes)
    --------------------------------------------------------------------- */
 function sideRig(stage, api, o) {
   const W = 560, H = 360, STEP = 10, BASE = 240, DEEP = 3000;
-  const bike = !!o.bike, R = bike ? 11 : 12, WB = bike ? 50 : 62, G = 1500, TOP = bike ? 420 : 330, ACC = bike ? 780 : 640, ROT = bike ? 7 : 5;
+  const bike = !!o.bike, R = bike ? 11 : 12, WB = bike ? 50 : 62, G = 1500, TOP = bike ? 480 : 330, ACC = bike ? 780 : 640, ROT = bike ? 7 : 5;
   const { c, x } = api.canvas(W, H); const k = RC.keys(api, stage);
   let hs, seesaws, bridges, gaps, spikes, cps, finishX, A, B, spinA, spinB, cam, lvl, time, score, alive, started, done, msg, msgT, puffs, rotAcc, airT, flips, cpIdx, respawnT, slow, charge, lastAng, levelTime;
   const L = () => o.levels[lvl];
 
   function build() {
-    hs = []; seesaws = []; bridges = []; gaps = []; spikes = []; cps = [];
+    hs = []; seesaws = []; bridges = []; gaps = []; spikes = []; cps = [120]; /* start flag first, level checkpoints follow */
     let y = BASE, xw = 0;
     const push = v => { hs.push(v); xw += STEP; };
     for (let i = 0; i < 20; i++) push(BASE);
@@ -33,6 +34,7 @@ function sideRig(stage, api, o) {
       else if (type === 'bump') for (let i = 0; i < n; i++) push(y - Math.sin(i / n * Math.PI) * (p || 25));
       else if (type === 'up') { for (let i = 0; i < n; i++) push(y - (p || 60) * (1 - Math.cos(i / n * Math.PI)) / 2); y -= (p || 60); }
       else if (type === 'down') { for (let i = 0; i < n; i++) push(y + (p || 60) * (1 - Math.cos(i / n * Math.PI)) / 2); y += (p || 60); }
+      else if (type === 'ramp') { for (let i = 0; i < n; i++) push(y - (p || 60) * i / n); y -= (p || 60); }
       else if (type === 'gap') { gaps.push({ x0, x1: x0 + n * STEP }); for (let i = 0; i < n; i++) push(y); }
       else if (type === 'seesaw') { seesaws.push({ x0, x1: x0 + n * STEP, cx: x0 + n * STEP / 2, y, ang: 0, w: 0 }); for (let i = 0; i < n; i++) push(y); }
       else if (type === 'bridge') { const planks = []; for (let i = 0; i < n; i++) { planks.push({ x0: x0 + i * STEP, t: 0, broken: false }); push(y); } bridges.push({ x0, x1: x0 + n * STEP, planks }); }
@@ -42,7 +44,6 @@ function sideRig(stage, api, o) {
       void y0;
     }
     finishX = xw; for (let i = 0; i < 40; i++) push(y);
-    if (!cps.length) cps.push(120);
   }
   const inRange = (wx, r) => wx >= r.x0 && wx <= r.x1;
   function ground(wx) {
@@ -69,7 +70,7 @@ function sideRig(stage, api, o) {
   function contact(w, h, drive) {
     const gy = ground(w.x); w.g = 0;
     if (gy >= DEEP) return 0;
-    if (w.y + R * .1 < gy - R) return 0;
+    if (w.y + .3 < gy - R) return 0; /* small clearance so a ramp launch actually leaves the ground */
     const sl = (ground(w.x + 3) - ground(w.x - 3)) / 6, len = Math.hypot(1, sl), tx = 1 / len, ty = sl / len, nx = ty, ny = -tx;
     w.y = gy - R; w.g = 1;
     let vt = w.vx * tx + w.vy * ty, vn = w.vx * nx + w.vy * ny; if (vn < 0) vn = 0;
@@ -450,27 +451,27 @@ function lanes3d(stage, api, o) {
 /* ===================== the six games ===================== */
 const MOTO_LEVELS = [
   { name: 'Warm-up', terrain: [['flat', 300], ['bump', 120, 25], ['flat', 200], ['hill', 220, 60], ['cp'], ['flat', 200], ['up', 150, 50], ['down', 150, 50], ['flat', 200], ['hill', 260, 90], ['flat', 300]] },
-  { name: 'Gap Jump', terrain: [['flat', 250], ['up', 120, 40], ['gap', 90], ['flat', 150], ['cp'], ['hill', 200, 70], ['flat', 100], ['up', 140, 60], ['gap', 120], ['down', 100, 40], ['flat', 250]] },
-  { name: 'Spike Alley', terrain: [['flat', 200], ['spikes', 60], ['flat', 150], ['up', 100, 40], ['spikes', 80], ['down', 100, 40], ['cp'], ['flat', 100], ['hill', 240, 100], ['spikes', 70], ['flat', 250]] },
-  { name: 'Rollercoaster', terrain: [['flat', 150], ['up', 200, 120], ['down', 150, 90], ['up', 120, 60], ['down', 200, 140], ['cp'], ['hill', 200, 80], ['hill', 160, 60], ['up', 180, 100], ['gap', 100], ['down', 200, 120], ['flat', 250]] },
-  { name: 'Big Air', terrain: [['flat', 250], ['up', 160, 110], ['gap', 160], ['down', 120, 60], ['cp'], ['flat', 100], ['up', 200, 140], ['gap', 200], ['down', 150, 80], ['spikes', 60], ['flat', 250]] },
-  { name: 'Bridge Run', terrain: [['flat', 200], ['bridge', 150], ['gap', 60], ['flat', 80], ['bridge', 200], ['cp'], ['up', 120, 50], ['gap', 110], ['bridge', 120], ['spikes', 50], ['flat', 250]] },
-  { name: 'The Gauntlet', terrain: [['flat', 150], ['up', 140, 80], ['gap', 130], ['spikes', 50], ['down', 100, 50], ['cp'], ['hill', 200, 90], ['bridge', 180], ['gap', 90], ['up', 160, 120], ['gap', 180], ['down', 200, 130], ['cp'], ['spikes', 80], ['hill', 180, 70], ['flat', 250]] },
+  { name: 'Gap Jump', terrain: [['flat', 250], ['ramp', 120, 40], ['gap', 80], ['flat', 100], ['down', 100, 40], ['flat', 100], ['cp'], ['hill', 200, 70], ['flat', 100], ['ramp', 160, 60], ['gap', 100], ['flat', 60], ['down', 150, 60], ['flat', 250]] },
+  { name: 'Spike Alley', terrain: [['flat', 200], ['ramp', 100, 30], ['down', 20, 30], ['spikes', 50], ['flat', 150], ['ramp', 100, 30], ['down', 20, 30], ['spikes', 60], ['flat', 120], ['cp'], ['flat', 80], ['hill', 200, 80], ['flat', 80], ['ramp', 120, 40], ['down', 20, 40], ['spikes', 70], ['flat', 250]] },
+  { name: 'Rollercoaster', terrain: [['flat', 150], ['up', 200, 120], ['down', 200, 80], ['flat', 60], ['up', 120, 60], ['down', 200, 80], ['flat', 60], ['cp'], ['hill', 200, 50], ['flat', 60], ['hill', 160, 40], ['flat', 80], ['ramp', 160, 60], ['gap', 100], ['flat', 60], ['down', 200, 60], ['flat', 250]] },
+  { name: 'Big Air', terrain: [['flat', 250], ['ramp', 200, 80], ['gap', 100], ['flat', 60], ['down', 150, 80], ['flat', 80], ['cp'], ['flat', 100], ['ramp', 200, 80], ['gap', 120], ['flat', 60], ['down', 150, 80], ['flat', 100], ['ramp', 120, 40], ['down', 20, 40], ['spikes', 70], ['flat', 250]] },
+  { name: 'Bridge Run', terrain: [['flat', 200], ['bridge', 150], ['flat', 80], ['bridge', 200], ['flat', 80], ['cp'], ['flat', 60], ['ramp', 120, 40], ['gap', 80], ['flat', 80], ['down', 100, 40], ['bridge', 120], ['flat', 60], ['ramp', 100, 30], ['down', 20, 30], ['spikes', 60], ['flat', 250]] },
+  { name: 'The Gauntlet', terrain: [['flat', 150], ['ramp', 140, 50], ['gap', 90], ['flat', 60], ['down', 100, 50], ['flat', 60], ['ramp', 100, 30], ['down', 20, 30], ['spikes', 60], ['flat', 100], ['cp'], ['hill', 200, 70], ['flat', 60], ['bridge', 180], ['flat', 60], ['ramp', 160, 60], ['gap', 120], ['flat', 60], ['down', 200, 60], ['flat', 80], ['cp'], ['flat', 60], ['ramp', 120, 40], ['down', 20, 40], ['spikes', 80], ['flat', 100], ['hill', 180, 70], ['flat', 250]] },
 ];
 const WAGON_LEVELS = [
-  { name: 'Seesaw School', terrain: [['flat', 200], ['seesaw', 220], ['flat', 150], ['hill', 180, 40], ['flat', 200]] },
+  { name: 'Seesaw School', terrain: [['flat', 200], ['seesaw', 180], ['flat', 150], ['hill', 180, 40], ['flat', 200]] },
   { name: 'Plank Walk', terrain: [['flat', 200], ['bridge', 160], ['flat', 100], ['bridge', 200], ['flat', 200]] },
-  { name: 'Mind the Gap', terrain: [['flat', 200], ['up', 100, 30], ['gap', 70], ['flat', 120], ['gap', 90], ['down', 80, 30], ['flat', 200]] },
-  { name: 'Tilt & Drop', terrain: [['flat', 150], ['seesaw', 200], ['gap', 60], ['seesaw', 200], ['flat', 200]] },
+  { name: 'Mind the Gap', terrain: [['flat', 280], ['ramp', 160, 50], ['gap', 70], ['flat', 120], ['down', 100, 50], ['flat', 100], ['ramp', 100, 30], ['gap', 80], ['flat', 60], ['down', 100, 30], ['flat', 200]] },
+  { name: 'Tilt & Drop', terrain: [['flat', 150], ['seesaw', 180], ['flat', 60], ['ramp', 160, 50], ['gap', 70], ['flat', 60], ['down', 100, 50], ['flat', 60], ['seesaw', 180], ['flat', 200]] },
   { name: 'Bumpy Bridge', terrain: [['flat', 150], ['bump', 80, 30], ['bridge', 220], ['bump', 80, 30], ['cp'], ['hill', 200, 70], ['bridge', 150], ['flat', 200]] },
   { name: 'Steep Stuff', terrain: [['flat', 150], ['up', 120, 90], ['down', 90, 80], ['up', 100, 70], ['seesaw', 200], ['down', 120, 100], ['flat', 200]] },
-  { name: 'Long Jump', terrain: [['flat', 250], ['up', 120, 60], ['gap', 150], ['down', 100, 40], ['cp'], ['bridge', 150], ['gap', 100], ['flat', 220]] },
-  { name: 'Wobble Finale', terrain: [['flat', 150], ['seesaw', 180], ['bridge', 150], ['gap', 80], ['cp'], ['up', 130, 90], ['gap', 120], ['seesaw', 220], ['spikes', 50], ['down', 100, 60], ['flat', 220]] },
+  { name: 'Long Jump', terrain: [['flat', 250], ['ramp', 200, 60], ['gap', 80], ['flat', 60], ['down', 100, 60], ['flat', 60], ['cp'], ['bridge', 150], ['flat', 60], ['ramp', 160, 50], ['gap', 80], ['flat', 60], ['down', 100, 50], ['flat', 220]] },
+  { name: 'Wobble Finale', terrain: [['flat', 150], ['seesaw', 180], ['flat', 80], ['bridge', 150], ['flat', 60], ['ramp', 160, 50], ['gap', 80], ['flat', 60], ['down', 100, 50], ['flat', 40], ['cp'], ['flat', 60], ['ramp', 200, 60], ['gap', 80], ['flat', 60], ['down', 100, 60], ['seesaw', 180], ['flat', 60], ['ramp', 120, 40], ['down', 20, 40], ['spikes', 40], ['flat', 220]] },
 ];
 
 GAMES.push(
 { id: 'remix:fliptrail', title: 'Flip Trail Moto', emoji: '🏍️', cat: 'remix', colors: ['#7c2d12', '#fb923c'],
-  help: 'Inspired by Moto X3M. What\'s different: every backflip knocks a second off your level time, and crashing sends you back to the last checkpoint flag instead of the start. Controls: ↑/W throttle, ↓/S brake, lean in the air with ↑/↓; tap to ride.',
+  help: 'Inspired by Moto X3M. What\'s different: every backflip knocks a second off your level time, and crashing sends you back to the last checkpoint flag instead of the start. Controls: ↑/W throttle, ↓/S brake, lean in the air with ↑/↓ (hold ↓ over the big gaps to land nose-first); tap to ride.',
   run(stage, api) { sideRig(stage, api, { title: 'Flip Trail Moto', bike: true, flips: true, levels: MOTO_LEVELS, sky: ['#fb923c', '#fde68a'], far: 'rgba(124,45,18,.35)', ground: '#78350f', top: '#fbbf24', car: '#dc2626' }); } },
 
 { id: 'remix:wobblewagon', title: 'Wobble Wagon', emoji: '🛺', cat: 'remix', colors: ['#0f766e', '#5eead4'],
