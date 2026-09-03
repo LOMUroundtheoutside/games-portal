@@ -12,7 +12,7 @@
      rooms/<code>                retained: a public room listing (empty payload = unlisted)
      presence/<room>/<client>    retained heartbeat; cleared by the relay when you drop     */
 
-const BROKERS = ['wss://broker.hivemq.com:8884/mqtt', 'wss://broker.emqx.io:8084/mqtt'];
+const BROKERS = ['wss://broker.emqx.io:8084/mqtt', 'wss://broker.hivemq.com:8884/mqtt'];
 const EVERYONE = 'EVERYONE', T = 'games-portal/';
 const CH = (() => { try { return { name: '', room: EVERYONE, logs: {}, ...JSON.parse(localStorage.getItem('gpchat') || '{}') }; } catch { return { name: '', room: EVERYONE, logs: {} }; } })();
 const chatSave = () => localStorage.setItem('gpchat', JSON.stringify(CH));
@@ -57,7 +57,7 @@ function chatConnect() {
     setStatus('on', 'online'); publish({ sys: 'joined' });
   });
   c.on('message', onMessage);
-  const lost = () => { if (client !== c) return; clearInterval(heartbeat); setStatus('off', 'offline – retrying'); brokerIdx++; setTimeout(() => { if (client === c) chatConnect(); }, 4000); };
+  const lost = () => { if (client !== c) return; clearInterval(heartbeat); setStatus('off', 'offline – retrying'); brokerIdx++; setTimeout(() => { if (client === c) chatConnect(); }, brokerIdx < BROKERS.length ? 300 : 4000); };
   c.on('close', lost); c.on('offline', lost); c.on('error', () => {});
 }
 function pulse() { if (client && client.connected) client.publish(presenceTopic(), JSON.stringify({ t: Date.now() }), { retain: true, qos: 0 }); }
