@@ -23,6 +23,7 @@ function makeApi(stage, hooks) {
     onKeyUp(fn) { const h = e => fn(e); window.addEventListener('keyup', h); cleanups.push(() => window.removeEventListener('keyup', h)); },
     onTap(fn)   { const h = e => { if (e.button && e.button !== 0) return; fn(e); }; stage.addEventListener('pointerdown', h); cleanups.push(() => stage.removeEventListener('pointerdown', h)); },
     onMove(fn)  { stage.addEventListener('pointermove', fn); cleanups.push(() => stage.removeEventListener('pointermove', fn)); },
+    on(target, ev, fn) { target.addEventListener(ev, fn); cleanups.push(() => target.removeEventListener(ev, fn)); },
     loop(fn) {
       let last = performance.now(), raf;
       const step = t => { const dt = Math.min(50, t - last); last = t; fn(dt); raf = requestAnimationFrame(step); };

@@ -1,6 +1,7 @@
 # Games Portal
 
-A self-contained games site: 13 games built in plain JavaScript, a panic button,
+A self-contained games site: 33 games built in plain JavaScript (13 arcade,
+puzzle, action and classic games plus 20 car racing games), a panic button,
 a tab disguise, favourites, high scores and your own game links. No build step,
 no dependencies, no other sites needed.
 
@@ -37,7 +38,8 @@ also allowed.
 |------|------------|
 | `index.html` | Page layout: top bar, sidebar, game grid, player window, settings dialog |
 | `style.css` | All styling; five colour themes live at the top in `:root` / `[data-theme]` |
-| `games.js` | The mini engine (`makeApi`) plus every game as an object in the `GAMES` array |
+| `games.js` | The mini engine (`makeApi`) plus the 13 original games as objects in the `GAMES` array |
+| `racing.js` | The 20 racing games. Shared helpers live in `RC` (held-key tracker, car sprite, spline track) and three engines: `RC.road3d` (pseudo-3D road), `RC.circuit` (top-down track with AI rivals) and `RC.hills` (side-view terrain physics) |
 | `app.js` | Catalogue, search/sort, favourites, player, panic button, settings, storage |
 
 ## Adding a game
@@ -57,5 +59,6 @@ Add an object to `GAMES` in `games.js`:
   } }
 ```
 
-Categories: `arcade`, `puzzle`, `action`, `classic`. Web games from other sites
+Categories: `arcade`, `puzzle`, `action`, `classic`, `racing`. Racing games go in
+`racing.js` inside its `GAMES.push(...)` call and can reuse the `RC` helpers. Web games from other sites
 can be added without code via Settings → My links; they open in an iframe.

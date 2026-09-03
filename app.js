@@ -82,7 +82,7 @@ function visible() {
   return list;
 }
 
-const TITLES = { all: 'All games', favorites: 'Favourites', recent: 'Recently played', arcade: 'Arcade', puzzle: 'Puzzle', action: 'Action', classic: 'Classic', custom: 'My links' };
+const TITLES = { all: 'All games', favorites: 'Favourites', recent: 'Recently played', arcade: 'Arcade', puzzle: 'Puzzle', action: 'Action', classic: 'Classic', racing: 'Racing', custom: 'My links' };
 
 function render() {
   const grid = $('#grid'), list = visible();
