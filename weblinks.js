@@ -67,7 +67,7 @@ WEB_GAMES.forEach(g => {
 
 /* Our own sites embed fine, so these play inside the portal window. */
 WEB_GAMES.unshift({
-  id: 'web:muted', title: 'Muted', emoji: '🔇', colors: ['#0a0c12', '#ff2e4d'], cat: 'web', newtab: false,
-  url: 'https://lomuroundtheoutside.github.io/muted/',
-  help: 'A music video plays with no sound. Type the artist and the title before everyone else. Ten rounds, live leaderboard, anyone on the internet can join. Built on FM.video.',
+  id: 'web:offair', title: 'Offair', emoji: '📻', colors: ['#071410', '#c8ff3d'], cat: 'web', newtab: false,
+  url: 'https://lomuroundtheoutside.github.io/offair/',
+  help: 'Radio stations as music-video channels with the ads skipped, a quiz built from what the station just played, and a screensaver mode. Built on FM.video.',
 });

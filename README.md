@@ -29,10 +29,10 @@ settings enable **Pages** from the main branch. It will be live at
 
 ## Web games
 
-**Muted** (`🔇`) is our own game, hosted at
-https://lomuroundtheoutside.github.io/muted/ and embedded inside the portal:
-a muted music video from FM.video plays and everyone races to name the artist
-and title. See that repo for how it works.
+**Offair** (`📻`) is our own app, hosted at
+https://lomuroundtheoutside.github.io/offair/ and embedded inside the portal:
+radio stations as music-video channels with the ad breaks skipped, plus a quiz
+and a screensaver mode. See that repo for how it works.
 
 The 🌐 Web games category lists 32 games from watchdocumentaries.com (Slope,
 Moto X3M, Geometry Dash, Cookie Clicker, Minecraft, FNAF…). That site sends an
