@@ -43,3 +43,10 @@ const WEB_GAMES = [
   url: WEB_SITE + slug + '-game/',
   help: `Runs on watchdocumentaries.com in its own tab – that site does not allow embedding.`,
 }));
+
+/* Our own sites embed fine, so these play inside the portal window. */
+WEB_GAMES.unshift({
+  id: 'web:muted', title: 'Muted', emoji: '🔇', colors: ['#0a0c12', '#ff2e4d'], cat: 'web', newtab: false,
+  url: 'https://lomuroundtheoutside.github.io/muted/',
+  help: 'A music video plays with no sound. Type the artist and the title before everyone else. Ten rounds, live leaderboard, anyone on the internet can join. Built on FM.video.',
+});
