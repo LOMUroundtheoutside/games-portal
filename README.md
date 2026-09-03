@@ -37,8 +37,10 @@ and title. See that repo for how it works.
 The 🌐 Web games category lists 32 games from watchdocumentaries.com (Slope,
 Moto X3M, Geometry Dash, Cookie Clicker, Minecraft, FNAF…). That site sends an
 `X-Frame-Options: SAMEORIGIN` header on every page **and** on the game folders,
-so browsers refuse to show them inside our game window. They therefore open in
-their own tab; the portal still tracks plays, favourites and recent for them.
+so browsers refuse to show them inside our game window. The 26 that have a
+remix open that remix inside the portal (the ↗ button in the player bar still
+reaches the original); the six without one open in their own tab. The portal
+tracks plays, favourites and recent for all of them.
 The list lives in `weblinks.js` – nothing is copied from their site.
 
 ## Remixes

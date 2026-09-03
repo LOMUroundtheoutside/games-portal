@@ -104,7 +104,7 @@ function render() {
       <button class="card-fav ${fav ? 'on' : ''}" title="Favourite">${fav ? '★' : '☆'}</button>
       <div class="card-body">
         <div class="card-title">${esc(g.title)}</div>
-        <div class="card-meta"><span>${g.newtab ? 'new tab ↗' : TITLES[g.cat] || g.cat}</span><span>${S.plays[g.id] ? S.plays[g.id] + ' plays' : 'new'}</span></div>
+        <div class="card-meta"><span>${g.remix ? 'remix inside' : g.newtab ? 'new tab ↗' : TITLES[g.cat] || g.cat}</span><span>${S.plays[g.id] ? S.plays[g.id] + ' plays' : 'new'}</span></div>
       </div>`;
     card.onclick = () => openGame(g.id);
     card.querySelector('.card-fav').onclick = e => { e.stopPropagation(); toggleFav(g.id); };
@@ -124,6 +124,10 @@ function toggleFav(id) {
 let current = null, api = null;
 function openGame(id) {
   const g = findGame(id); if (!g) return;
+  if (g.remix && findGame(g.remix)) { /* web game with a remix: play the remix inside the portal */
+    S.plays[id] = (S.plays[id] || 0) + 1; S.recent = [id, ...S.recent.filter(r => r !== id)].slice(0, 12); save();
+    openGame(g.remix); toast(`Playing our remix of ${g.title}`); return;
+  }
   if (g.newtab) { /* the other site refuses to be embedded, so it gets its own tab */
     window.open(g.url, '_blank', 'noopener');
     S.plays[id] = (S.plays[id] || 0) + 1; S.recent = [id, ...S.recent.filter(r => r !== id)].slice(0, 12); save(); render();
@@ -140,7 +144,7 @@ function openGame(id) {
   S.plays[id] = (S.plays[id] || 0) + 1;
   S.recent = [id, ...S.recent.filter(r => r !== id)].slice(0, 12);
   save();
-  $('#player-open').hidden = !g.url;
+  $('#player-open').hidden = !(g.url || g.origUrl);
   if (g.url) {
     const f = document.createElement('iframe'); f.src = g.url; f.allow = 'fullscreen; autoplay; gamepad'; f.setAttribute('allowfullscreen', ''); stage.appendChild(f);
     return;
@@ -159,7 +163,7 @@ function closeGame() {
 function updateFavBtn() { const on = current && S.favorites.includes(current.id); const b = $('#player-fav'); b.textContent = on ? '★' : '☆'; b.classList.toggle('on', on); }
 
 $('#player-close').onclick = closeGame;
-$('#player-open').onclick = () => { if (current && current.url) window.open(current.url, '_blank', 'noopener'); };
+$('#player-open').onclick = () => { const u = current && (current.url || current.origUrl); if (u) window.open(u, '_blank', 'noopener'); };
 $('#player-restart').onclick = () => { if (api && api._restart) api._restart(); else if (current) openGame(current.id); };
 $('#player-fav').onclick = () => current && toggleFav(current.id);
 $('#player-full').onclick = () => { const f = $('.player-frame'); document.fullscreenElement ? document.exitFullscreen() : f.requestFullscreen().catch(() => toast('Fullscreen not allowed here')); };

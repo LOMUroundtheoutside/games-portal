@@ -44,6 +44,27 @@ const WEB_GAMES = [
   help: `Runs on watchdocumentaries.com in its own tab – that site does not allow embedding. Want it inside the portal? Try the 🎨 Remixes tab.`,
 }));
 
+/* Web games that have a remix of their own: clicking the card plays the remix
+   inside the portal, and the ↗ button in the player bar still reaches the original. */
+const WEB_REMIX = {
+  'slope': 'remix:neon-descent', 'slope-2': 'remix:magma-run', 'slope-3': 'remix:glitch-fall',
+  'run-3': 'remix:gravity-tube', 'ovo': 'remix:pip-dash',
+  'geometry-dash': 'remix:beat-blocks', 'geometry-dash-subzero': 'remix:beat-blocks-frost', 'geometry-dash-hyper-wave': 'remix:beat-blocks-surge',
+  'moto-x3m': 'remix:fliptrail', 'drive-mad': 'remix:wobblewagon', 'drift-hunters': 'remix:slidesyndicate', 'polytrack': 'remix:lowpolylaps',
+  'highway-traffic': 'remix:twowaytrouble', 'traffic-jam-3d': 'remix:gridlock', 'survival-race': 'remix:last-one-standing', 'snow-rider-3d': 'remix:powder-peak',
+  'rocket-league': 'remix:rocket-pitch', 'basketball-stars': 'remix:hoop-heroes', 'football-legends': 'remix:bighead-kickoff', 'a-small-world-cup': 'remix:tiny-cup',
+  'cookie-clicker': 'remix:biscuit-empire', 'monkey-mart': 'remix:mango-market',
+  'five-nights-at-freddys': 'remix:arcade-nightshift', 'five-nights-at-freddys-2': 'remix:toyshop-lockin',
+  'five-nights-at-freddys-3': 'remix:lighthouse-watch', 'five-nights-at-freddys-4': 'remix:nursery-night',
+};
+WEB_GAMES.forEach(g => {
+  const rid = WEB_REMIX[g.id.slice(4)]; if (!rid) return;
+  const r = GAMES.find(x => x.id === rid); if (!r) return;
+  g.remix = rid; g.newtab = false;
+  g.help = `Plays our remix “${r.title}” inside the portal. ${r.help}`;
+  r.origUrl = g.url;
+});
+
 /* Our own sites embed fine, so these play inside the portal window. */
 WEB_GAMES.unshift({
   id: 'web:muted', title: 'Muted', emoji: '🔇', colors: ['#0a0c12', '#ff2e4d'], cat: 'web', newtab: false,
