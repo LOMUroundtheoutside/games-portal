@@ -38,6 +38,7 @@
   <button class="chip" data-cat="action">💥 Action</button>
   <button class="chip" data-cat="classic">♟️ Classic</button>
   <button class="chip" data-cat="racing">🏎️ Racing</button>
+  <button class="chip" data-cat="remix">🎨 Remixes</button>
   <button class="chip" data-cat="web">🌐 Web games</button>
   <button class="chip" data-cat="custom">🔗 My links</button>
   <span class="chip-count" id="stat-count"></span>
@@ -79,6 +80,7 @@
       <div class="player-title"><span id="player-emoji"></span> <span id="player-name"></span></div>
       <div class="player-score">Best: <b id="player-best">0</b></div>
       <div class="player-actions">
+        <button class="panic panic-mini" id="player-panic" title="Panic! Jump to the safe page"><span class="panic-dot"></span> <span id="player-panic-label">PANIC</span></button>
         <button class="mini" id="player-open" title="Open in a new tab" hidden>↗</button>
         <button class="mini" id="player-restart" title="Restart (R)">↻</button>
         <button class="mini" id="player-fav" title="Favourite">☆</button>
@@ -191,6 +193,11 @@
 
 <script src="games.js"></script>
 <script src="racing.js"></script>
+<script src="remix-a.js"></script>
+<script src="remix-b.js"></script>
+<script src="remix-c.js"></script>
+<script src="remix-d.js"></script>
+<script src="remix-e.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.10.1/mqtt.min.js"></script>
 <script src="weblinks.js"></script>
 <script src="app.js"></script>

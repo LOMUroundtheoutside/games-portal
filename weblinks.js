@@ -41,7 +41,7 @@ const WEB_GAMES = [
 ].map(([slug, title, emoji, colors]) => ({
   id: 'web:' + slug, title, emoji, colors, cat: 'web', newtab: true,
   url: WEB_SITE + slug + '-game/',
-  help: `Runs on watchdocumentaries.com in its own tab – that site does not allow embedding.`,
+  help: `Runs on watchdocumentaries.com in its own tab – that site does not allow embedding. Want it inside the portal? Try the 🎨 Remixes tab.`,
 }));
 
 /* Our own sites embed fine, so these play inside the portal window. */

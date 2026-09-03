@@ -1,7 +1,8 @@
 # Games Portal
 
-A self-contained games site: 33 games built in plain JavaScript (13 arcade,
-puzzle, action and classic games plus 20 car racing games), a panic button,
+A self-contained games site: 59 games built in plain JavaScript (13 arcade,
+puzzle, action and classic games, 20 car racing games and 26 remixes of
+popular web games), a panic button,
 a tab disguise, favourites, high scores and your own game links. No build step,
 no dependencies, no other sites needed.
 
@@ -39,6 +40,25 @@ Moto X3M, Geometry Dash, Cookie Clicker, Minecraft, FNAF…). That site sends an
 so browsers refuse to show them inside our game window. They therefore open in
 their own tab; the portal still tracks plays, favourites and recent for them.
 The list lives in `weblinks.js` – nothing is copied from their site.
+
+## Remixes
+
+The 🎨 Remixes category holds 26 games of our own that are *inspired by* the
+web games above (Cookie Clicker, Slope, Geometry Dash, OvO, Moto X3M, Rocket
+League, FNAF…) so they can run inside the portal. Each has its own name, its
+own code and drawn graphics, and two or three deliberate twists; the text under
+the game says what it is inspired by, what is different, and the controls.
+Game ideas can't be owned, only code, art and names can – nothing is copied.
+They live in `remix-a.js` … `remix-e.js` (each file is one batch wrapped in an
+IIFE). Minecraft, Among Us, Fortzone, Crazy Cattle 3D and Granny were left out:
+full 3D or online multiplayer doesn't fit a 2D canvas.
+
+Every game window also has a PANIC button in its bar, and the panic hotkey
+works while a game is open.
+
+`node tools/smoke.js remix-a.js` runs a headless smoke test over one file: every
+game is started in a stubbed DOM, mashed with keys and taps, restarted mid-run
+and stopped, and any thrown error is reported.
 
 For links you add yourself (Settings → My links) there is an "Open in a new
 tab" tick box, and the ↗ button in the player bar opens any embedded link in a
@@ -84,6 +104,8 @@ also allowed.
 | `style.css` | All styling; five colour themes live at the top in `:root` / `[data-theme]` |
 | `games.js` | The mini engine (`makeApi`) plus the 13 original games as objects in the `GAMES` array |
 | `racing.js` | The 20 racing games. Shared helpers live in `RC` (held-key tracker, car sprite, spline track) and three engines: `RC.road3d` (pseudo-3D road), `RC.circuit` (top-down track with AI rivals) and `RC.hills` (side-view terrain physics) |
+| `remix-a.js` … `remix-e.js` | The 26 remixes: A idle/platform/rhythm, B pseudo-3D runners, C driving, D sports (1P or 2P), E night-shift survival |
+| `tools/smoke.js` | Headless smoke test for a game file (see Remixes) |
 | `app.js` | Catalogue, search/sort, favourites, player, panic button, settings, storage, live/dev tab icon |
 | `weblinks.js` | Games on other sites that open in a new tab (they block embedding) |
 | `chat.js` | The chat drawer: room codes, invite links, the MQTT relay connection, message log |

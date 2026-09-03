@@ -305,3 +305,8 @@ kbd {
 .msg.me .who { color: rgba(255,255,255,.75); }
 .msg.sys { align-self: center; background: none; color: var(--muted); font-size: .75rem; text-align: center; }
 .chat-send { display: flex; gap: 8px; padding: 10px 14px; border-top: 1px solid var(--border); }
+
+/* in-game panic button (player bar) */
+.panic.panic-mini { height: 34px; padding: 0 12px; font-size: .85rem; border-radius: 8px; gap: 6px; margin-right: 6px; }
+.panic.panic-mini .panic-dot { width: 8px; height: 8px; }
+.player-help { white-space: pre-line; }

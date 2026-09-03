@@ -86,7 +86,7 @@ function visible() {
   return list;
 }
 
-const TITLES = { all: 'All games', favorites: 'Favourites', recent: 'Recently played', arcade: 'Arcade', puzzle: 'Puzzle', action: 'Action', classic: 'Classic', racing: 'Racing', web: 'Web games', custom: 'My links' };
+const TITLES = { all: 'All games', favorites: 'Favourites', recent: 'Recently played', arcade: 'Arcade', puzzle: 'Puzzle', action: 'Action', classic: 'Classic', racing: 'Racing', remix: 'Remixes', web: 'Web games', custom: 'My links' };
 
 function render() {
   const grid = $('#grid'), list = visible();
@@ -133,7 +133,7 @@ function openGame(id) {
   current = g;
   const stage = $('#stage'); stage.innerHTML = '';
   $('#player-emoji').textContent = g.emoji; $('#player-name').textContent = g.title;
-  $('#player-help').textContent = g.help || '';
+  $('#player-help').textContent = (g.help || '').replace(/\s(What's different:|Controls:)/g, '\n$1');
   $('#player-best').textContent = S.best[id] || 0;
   updateFavBtn();
   $('#player').hidden = false;
@@ -175,6 +175,7 @@ function panic() {
 }
 $('#btn-panic').onclick = panic;
 $('#btn-panic-hero').onclick = panic;
+$('#player-panic').onclick = panic;
 
 let lastEsc = 0;
 window.addEventListener('keydown', e => {
