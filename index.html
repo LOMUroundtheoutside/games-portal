@@ -162,13 +162,21 @@
     <div><b>💬 Chat</b><span class="chat-status" id="chat-status">connecting…</span></div>
     <button class="mini" id="chat-close" title="Close chat">✕</button>
   </div>
-  <div class="chat-room">
-    <label class="field">Room code<input id="chat-room" maxlength="12" spellcheck="false" autocomplete="off"></label>
+  <div class="chat-rooms">
+    <div class="rooms-head"><span>Rooms</span><span>tap one to join</span></div>
+    <div class="room-chips" id="room-chips"></div>
+    <form class="room-join" id="room-join">
+      <input id="chat-room" placeholder="Private room code" maxlength="12" spellcheck="false" autocomplete="off">
+      <button class="btn ghost" type="submit">Join</button>
+    </form>
+  </div>
+  <div class="chat-tools">
     <label class="field">Your name<input id="chat-name" maxlength="16" placeholder="e.g. Theo" autocomplete="off"></label>
     <button class="btn" id="chat-link" title="Copies a link that opens the site in this room">🔗 Invite link</button>
-    <button class="btn ghost" id="chat-new-room" title="Start a fresh room with a new code">New room</button>
+    <button class="btn ghost" id="chat-new-room" title="Start a private room with a fresh code">New private</button>
+    <button class="btn ghost" id="chat-public" title="List this room so anyone can find and join it">Make public</button>
   </div>
-  <p class="hint chat-hint">Friends with the same room code see your messages. They go through a public relay, so keep it to game chat.</p>
+  <p class="hint chat-hint">🌍 Everyone is open to all players. Messages go through a public relay, so keep it to game chat.</p>
   <div class="chat-log" id="chat-log"></div>
   <form class="chat-send" id="chat-form">
     <input id="chat-input" placeholder="Say something…" autocomplete="off" maxlength="300">

@@ -28,12 +28,22 @@ settings enable **Pages** from the main branch. It will be live at
 
 ## Chat
 
-Click 💬 in the top bar. Everyone who enters the same **room code** sees each
-other's messages. "Copy invite link" gives you a link that opens the site already
-in your room, so send that to a friend. There is no server of our own: messages
-travel through a public MQTT relay over a websocket (HiveMQ, falling back to
-EMQX), so anyone who knows the room code can read them. Keep it to game chat.
-The last 150 messages of each room are kept in your browser only.
+Click 💬 in the top bar. Rooms:
+
+* **🌍 Everyone** – the community room. New visitors land here; anyone can join.
+* **Public rooms** – open your own room, press **Make public** and give it a
+  name. It is listed for everybody for 7 days (or until you make it private).
+* **Private rooms** – **New private** makes a room with a code. **Invite link**
+  copies a link that opens the site straight into your room. Friends can also
+  type the code in the "Private room code" box.
+
+Each room shows how many people are in it right now. The last 30 messages of a
+room are kept on the relay so late joiners see what was said; your browser
+keeps the last 150 per room.
+
+There is no server of our own: messages travel through a public MQTT relay over
+a websocket (HiveMQ, falling back to EMQX). Anyone who knows a room code can read
+that room, so keep it to game chat and never post personal details.
 
 ## Live vs dev
 
