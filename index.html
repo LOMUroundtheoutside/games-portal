@@ -19,7 +19,7 @@
     <input id="search" type="search" placeholder="Search games…  (press /)" autocomplete="off">
   </div>
   <nav class="topnav">
-    <button class="icon-btn chat-btn" id="btn-chat" title="Chat with friends">💬<span class="badge" id="chat-badge" hidden></span></button>
+    <button class="icon-btn chat-btn" id="btn-chat" title="Chat with friends">💬<span class="chat-badge" id="chat-badge" hidden></span></button>
     <button class="icon-btn" id="btn-settings" title="Settings">⚙️</button>
     <button class="panic" id="btn-panic" title="Panic! Jump to a safe page">
       <span class="panic-dot"></span> <span>PANIC</span>
@@ -38,6 +38,7 @@
   <button class="chip" data-cat="action">💥 Action</button>
   <button class="chip" data-cat="classic">♟️ Classic</button>
   <button class="chip" data-cat="racing">🏎️ Racing</button>
+  <button class="chip" data-cat="web">🌐 Web games</button>
   <button class="chip" data-cat="custom">🔗 My links</button>
   <span class="chip-count" id="stat-count"></span>
 </nav>
@@ -78,6 +79,7 @@
       <div class="player-title"><span id="player-emoji"></span> <span id="player-name"></span></div>
       <div class="player-score">Best: <b id="player-best">0</b></div>
       <div class="player-actions">
+        <button class="mini" id="player-open" title="Open in a new tab" hidden>↗</button>
         <button class="mini" id="player-restart" title="Restart (R)">↻</button>
         <button class="mini" id="player-fav" title="Favourite">☆</button>
         <button class="mini" id="player-full" title="Fullscreen (F)">⛶</button>
@@ -146,6 +148,7 @@
       <input id="add-url" type="url" placeholder="https://…">
       <button class="btn" id="add-link">Add</button>
     </div>
+    <label class="check"><input type="checkbox" id="add-newtab"> Open in a new tab (needed for sites that refuse to be embedded)</label>
     <div id="custom-list" class="custom-list"></div>
 
     <h3>🧹 Data</h3>
@@ -189,6 +192,7 @@
 <script src="games.js"></script>
 <script src="racing.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.10.1/mqtt.min.js"></script>
+<script src="weblinks.js"></script>
 <script src="app.js"></script>
 <script src="chat.js"></script>
 </body>

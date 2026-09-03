@@ -26,6 +26,19 @@ settings enable **Pages** from the main branch. It will be live at
   to the games. "Open new tab" keeps the portal but closes the game and switches
   the tab title/icon to the disguise.
 
+## Web games
+
+The 🌐 Web games category lists 32 games from watchdocumentaries.com (Slope,
+Moto X3M, Geometry Dash, Cookie Clicker, Minecraft, FNAF…). That site sends an
+`X-Frame-Options: SAMEORIGIN` header on every page **and** on the game folders,
+so browsers refuse to show them inside our game window. They therefore open in
+their own tab; the portal still tracks plays, favourites and recent for them.
+The list lives in `weblinks.js` – nothing is copied from their site.
+
+For links you add yourself (Settings → My links) there is an "Open in a new
+tab" tick box, and the ↗ button in the player bar opens any embedded link in a
+new tab if the frame stays blank.
+
 ## Chat
 
 Click 💬 in the top bar. Rooms:
@@ -67,6 +80,7 @@ also allowed.
 | `games.js` | The mini engine (`makeApi`) plus the 13 original games as objects in the `GAMES` array |
 | `racing.js` | The 20 racing games. Shared helpers live in `RC` (held-key tracker, car sprite, spline track) and three engines: `RC.road3d` (pseudo-3D road), `RC.circuit` (top-down track with AI rivals) and `RC.hills` (side-view terrain physics) |
 | `app.js` | Catalogue, search/sort, favourites, player, panic button, settings, storage, live/dev tab icon |
+| `weblinks.js` | Games on other sites that open in a new tab (they block embedding) |
 | `chat.js` | The chat drawer: room codes, invite links, the MQTT relay connection, message log |
 
 ## Adding a game

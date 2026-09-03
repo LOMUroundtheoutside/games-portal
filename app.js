@@ -67,8 +67,8 @@ function toast(msg, ms = 1800) {
 let cat = 'all', query = '', sort = 'name';
 
 function allGames() {
-  const custom = S.custom.map((c, i) => ({ id: 'custom:' + i, title: c.name, emoji: '🔗', cat: 'custom', colors: ['#334155', '#64748b'], url: c.url, help: 'Opens ' + c.url + ' inside this page.' }));
-  return [...GAMES, ...custom];
+  const custom = S.custom.map((c, i) => ({ id: 'custom:' + i, title: c.name, emoji: '🔗', cat: 'custom', colors: ['#334155', '#64748b'], url: c.url, newtab: !!c.newtab, help: c.newtab ? 'Opens ' + c.url + ' in a new tab.' : 'Opens ' + c.url + ' inside this page. If it stays blank, use ↗ to open it in a new tab.' }));
+  return [...GAMES, ...WEB_GAMES, ...custom];
 }
 function findGame(id) { return allGames().find(g => g.id === id); }
 
@@ -86,7 +86,7 @@ function visible() {
   return list;
 }
 
-const TITLES = { all: 'All games', favorites: 'Favourites', recent: 'Recently played', arcade: 'Arcade', puzzle: 'Puzzle', action: 'Action', classic: 'Classic', racing: 'Racing', custom: 'My links' };
+const TITLES = { all: 'All games', favorites: 'Favourites', recent: 'Recently played', arcade: 'Arcade', puzzle: 'Puzzle', action: 'Action', classic: 'Classic', racing: 'Racing', web: 'Web games', custom: 'My links' };
 
 function render() {
   const grid = $('#grid'), list = visible();
@@ -104,13 +104,13 @@ function render() {
       <button class="card-fav ${fav ? 'on' : ''}" title="Favourite">${fav ? '★' : '☆'}</button>
       <div class="card-body">
         <div class="card-title">${esc(g.title)}</div>
-        <div class="card-meta"><span>${TITLES[g.cat] || g.cat}</span><span>${S.plays[g.id] ? S.plays[g.id] + ' plays' : 'new'}</span></div>
+        <div class="card-meta"><span>${g.newtab ? 'new tab ↗' : TITLES[g.cat] || g.cat}</span><span>${S.plays[g.id] ? S.plays[g.id] + ' plays' : 'new'}</span></div>
       </div>`;
     card.onclick = () => openGame(g.id);
     card.querySelector('.card-fav').onclick = e => { e.stopPropagation(); toggleFav(g.id); };
     grid.appendChild(card);
   });
-  $('#stat-count').textContent = `${GAMES.length} built-in games · ${S.custom.length} links`;
+  $('#stat-count').textContent = `${GAMES.length} built-in · ${WEB_GAMES.length} web · ${S.custom.length} links`;
 }
 const esc = s => String(s).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
 
@@ -124,6 +124,11 @@ function toggleFav(id) {
 let current = null, api = null;
 function openGame(id) {
   const g = findGame(id); if (!g) return;
+  if (g.newtab) { /* the other site refuses to be embedded, so it gets its own tab */
+    window.open(g.url, '_blank', 'noopener');
+    S.plays[id] = (S.plays[id] || 0) + 1; S.recent = [id, ...S.recent.filter(r => r !== id)].slice(0, 12); save(); render();
+    toast(`${g.title} opened in a new tab ↗`); return;
+  }
   closeGame();
   current = g;
   const stage = $('#stage'); stage.innerHTML = '';
@@ -135,6 +140,7 @@ function openGame(id) {
   S.plays[id] = (S.plays[id] || 0) + 1;
   S.recent = [id, ...S.recent.filter(r => r !== id)].slice(0, 12);
   save();
+  $('#player-open').hidden = !g.url;
   if (g.url) {
     const f = document.createElement('iframe'); f.src = g.url; f.allow = 'fullscreen; autoplay; gamepad'; f.setAttribute('allowfullscreen', ''); stage.appendChild(f);
     return;
@@ -153,6 +159,7 @@ function closeGame() {
 function updateFavBtn() { const on = current && S.favorites.includes(current.id); const b = $('#player-fav'); b.textContent = on ? '★' : '☆'; b.classList.toggle('on', on); }
 
 $('#player-close').onclick = closeGame;
+$('#player-open').onclick = () => { if (current && current.url) window.open(current.url, '_blank', 'noopener'); };
 $('#player-restart').onclick = () => { if (api && api._restart) api._restart(); else if (current) openGame(current.id); };
 $('#player-fav').onclick = () => current && toggleFav(current.id);
 $('#player-full').onclick = () => { const f = $('.player-frame'); document.fullscreenElement ? document.exitFullscreen() : f.requestFullscreen().catch(() => toast('Fullscreen not allowed here')); };
@@ -248,7 +255,7 @@ $('#add-link').onclick = () => {
   const name = $('#add-name').value.trim(); let url = $('#add-url').value.trim();
   if (!name || !url) return toast('Need a name and a URL');
   if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-  S.custom.push({ name, url }); $('#add-name').value = ''; $('#add-url').value = ''; commit(); fillSettings(); toast('Added ' + name);
+  S.custom.push({ name, url, newtab: $('#add-newtab').checked }); $('#add-name').value = ''; $('#add-url').value = ''; $('#add-newtab').checked = false; commit(); fillSettings(); toast('Added ' + name);
 };
 $('#export-data').onclick = () => {
   const a = document.createElement('a'); a.href = 'data:application/json,' + encodeURIComponent(JSON.stringify(S, null, 2)); a.download = 'games-portal-settings.json'; a.click();

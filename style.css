@@ -261,7 +261,7 @@ kbd {
 /* Chat */
 .chat-btn { position: relative; }
 .chat-btn.active { background: var(--accent); border-color: var(--accent); }
-.badge {
+.chat-badge {
   position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px; padding: 0 5px;
   background: var(--danger); color: #fff; border-radius: 999px; font-size: .65rem; font-weight: 800;
   display: flex; align-items: center; justify-content: center;
