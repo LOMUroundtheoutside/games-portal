@@ -71,6 +71,14 @@ vm.createContext(sandbox);
 const load = f => vm.runInContext(fs.readFileSync(path.join(root, f), 'utf8'), sandbox, { filename: f });
 for (const base of ['games.js', 'racing.js']) if (path.resolve(root, base) !== path.resolve(target)) load(base);
 const before = vm.runInContext('GAMES.length', sandbox);
+if (/\bTHREE\b/.test(fs.readFileSync(target, 'utf8'))) {
+  /* three.js games: run the real library (scene graph, maths, raycasting) but stub the WebGL renderer,
+     which needs a GPU context the fake canvas cannot give. */
+  load('lib/three.min.js');
+  const THREE = win.THREE; sandbox.THREE = THREE;
+  THREE.WebGLRenderer = function () { this.domElement = el('canvas'); this.shadowMap = {}; };
+  THREE.WebGLRenderer.prototype = { setSize: noop, setPixelRatio: noop, render: noop, dispose: noop };
+}
 load(target);
 const games = vm.runInContext(`GAMES.slice(${before})`, sandbox);
 console.log(`${target}: ${games.length} game(s)`);
@@ -81,7 +89,7 @@ for (const g of games) {
   const problems = [];
   for (const k of ['id', 'title', 'emoji', 'cat', 'colors', 'help', 'run']) if (g[k] == null) problems.push('missing ' + k);
   if (seenIds.has(g.id)) problems.push('duplicate id'); seenIds.add(g.id);
-  if (g.help && !/inspired by/i.test(g.help)) problems.push('help lacks "Inspired by"');
+  if (/remix/.test(target) && g.help && !/inspired by/i.test(g.help)) problems.push('help lacks "Inspired by"');
   const stage = el('div'); stage.width = 600; stage.height = 420;
   let best = 0;
   const api = vm.runInContext('makeApi', sandbox)(stage, { score: n => { best = Math.max(best, n); }, beep: noop });

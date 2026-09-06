@@ -310,3 +310,14 @@ kbd {
 .panic.panic-mini { height: 34px; padding: 0 12px; font-size: .85rem; border-radius: 8px; gap: 6px; margin-right: 6px; }
 .panic.panic-mini .panic-dot { width: 8px; height: 8px; }
 .player-help { white-space: pre-line; }
+
+/* 3D games (three.js): text drawn over the WebGL canvas */
+.hud3d {
+  position: absolute; left: 12px; top: 10px; color: #fff; pointer-events: none;
+  font: 700 15px/1.4 ui-monospace, monospace; text-shadow: 0 1px 3px #000, 0 0 8px rgba(0,0,0,.6); white-space: pre-line;
+}
+.hud3d .big { font-size: 5rem; line-height: 1; display: block; }
+.hotbar3d { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); display: flex; gap: 6px; background: rgba(0,0,0,.45); padding: 6px; border-radius: 12px; }
+.hotbar3d button { display: flex; flex-direction: column; align-items: center; gap: 3px; width: 44px; padding: 5px 0; border-radius: 8px; border: 2px solid transparent; background: rgba(255,255,255,.08); color: #fff; font: 700 11px ui-monospace, monospace; }
+.hotbar3d button.on { border-color: #fff; background: rgba(255,255,255,.22); }
+.hotbar3d button i { display: block; width: 22px; height: 22px; border-radius: 4px; border: 1px solid rgba(0,0,0,.4); }

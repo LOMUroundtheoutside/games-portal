@@ -1,10 +1,10 @@
 # Games Portal
 
-A self-contained games site: 59 games built in plain JavaScript (13 arcade,
-puzzle, action and classic games, 20 car racing games and 26 remixes of
-popular web games), a panic button,
-a tab disguise, favourites, high scores and your own game links. No build step,
-no dependencies, no other sites needed.
+A self-contained games site: 66 games built in plain JavaScript (13 arcade,
+puzzle, action and classic games, 20 car racing games, 26 remixes of popular
+web games and 7 real 3D games), a panic button, a tab disguise, favourites,
+high scores and your own game links. No build step, no other sites needed;
+the only library is a local copy of three.js for the 3D games.
 
 ## Run it
 
@@ -29,11 +29,6 @@ settings enable **Pages** from the main branch. It will be live at
 
 ## Web games
 
-**Offair** (`📻`) is our own app, hosted at
-https://lomuroundtheoutside.github.io/offair/ and embedded inside the portal:
-radio stations as music-video channels with the ad breaks skipped, plus a quiz
-and a screensaver mode. See that repo for how it works.
-
 The 🌐 Web games category lists 32 games from watchdocumentaries.com (Slope,
 Moto X3M, Geometry Dash, Cookie Clicker, Minecraft, FNAF…). That site sends an
 `X-Frame-Options: SAMEORIGIN` header on every page **and** on the game folders,
@@ -52,8 +47,25 @@ own code and drawn graphics, and two or three deliberate twists; the text under
 the game says what it is inspired by, what is different, and the controls.
 Game ideas can't be owned, only code, art and names can – nothing is copied.
 They live in `remix-a.js` … `remix-e.js` (each file is one batch wrapped in an
-IIFE). Minecraft, Among Us, Fortzone, Crazy Cattle 3D and Granny were left out:
-full 3D or online multiplayer doesn't fit a 2D canvas.
+IIFE). Among Us, Fortzone, Crazy Cattle 3D and Granny were left out: online
+multiplayer or a full 3D world doesn't fit a 2D canvas. Minecraft's stand-in is
+Block Builder in the 3D category.
+
+## 3D games
+
+The 🧊 3D category holds seven games that are true 3D: WebGL scenes rendered
+with three.js (`lib/three.min.js`, release 134, MIT licence), with a perspective
+camera, lights and meshes rather than a flat canvas faking depth. They live in
+`three-d.js`, share a small `T3` helper (renderer sized to the player window,
+resize/fullscreen handling, key state, HUD) and are otherwise ordinary portal
+games. Slope Ball, Stack Tower, Asteroid Blaster, Maze Escape, Kart Circuit
+(three laps against two rival karts), Block Builder (a Minecraft-style sandbox
+whose island is saved in the browser) and Tunnel Rush. They need a browser with
+WebGL, which is every current desktop and phone browser.
+
+`node tools/smoke.js three-d.js` runs them headlessly: it loads the real
+three.js but swaps in a fake WebGL renderer, so the game logic, scene graph and
+raycasting are exercised without a GPU.
 
 Every game window also has a PANIC button in its bar, and the panic hotkey
 works while a game is open.
