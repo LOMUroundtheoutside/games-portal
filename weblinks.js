@@ -71,8 +71,3 @@ WEB_GAMES.unshift({
   url: 'https://lomuroundtheoutside.github.io/squabble/',
   help: 'Two-player word games: Boggle, Letters, Duel, Ladder and Chain. Share a room code to play a friend anywhere, or take on the robot.',
 });
-WEB_GAMES.unshift({
-  id: 'web:offair', title: 'Offair', emoji: '📻', colors: ['#071410', '#c8ff3d'], cat: 'web', newtab: false,
-  url: 'https://lomuroundtheoutside.github.io/offair/',
-  help: 'Radio stations as music-video channels with the ads skipped, a quiz built from what the station just played, and a screensaver mode. Built on FM.video.',
-});
