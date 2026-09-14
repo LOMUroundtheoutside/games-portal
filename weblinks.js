@@ -38,6 +38,7 @@ const WEB_GAMES = [
   ['five-nights-at-freddys-4', "Five Nights at Freddy's 4", '👻', ['#171717', '#7c3aed']],
   ['granny', 'Granny', '👵', ['#292524', '#78716c']],
   ['granny-2', 'Granny 2', '🏚️', ['#1c1917', '#a8a29e']],
+  ['bitlife-life-simulator', 'BitLife Life Simulator', '🧬', ['#1e3a8a', '#f472b6']],
 ].map(([slug, title, emoji, colors]) => ({
   id: 'web:' + slug, title, emoji, colors, cat: 'web', newtab: true,
   url: WEB_SITE + slug + '-game/',
