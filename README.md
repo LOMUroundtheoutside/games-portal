@@ -1,6 +1,6 @@
 # Games Portal
 
-A self-contained games site: 66 games built in plain JavaScript (13 arcade,
+A self-contained games site: 68 games built in plain JavaScript (13 arcade,
 puzzle, action and classic games, 20 car racing games, 26 remixes of popular
 web games and 7 real 3D games), a panic button, a tab disguise, favourites,
 high scores and your own game links. No build step, no other sites needed;
@@ -159,6 +159,7 @@ also allowed.
 | `style.css` | All styling; five colour themes live at the top in `:root` / `[data-theme]` |
 | `games.js` | The mini engine (`makeApi`) plus the 13 original games as objects in the `GAMES` array |
 | `racing.js` | The 20 racing games. Shared helpers live in `RC` (held-key tracker, car sprite, spline track) and three engines: `RC.road3d` (pseudo-3D road), `RC.circuit` (top-down track with AI rivals) and `RC.hills` (side-view terrain physics) |
+| `worldcup.js` | World Cup 2026: the real 48 teams and groups, round-of-32 slot rules and bracket, a top-down 6-a-side match engine with AI, penalty shoot-outs, and a localStorage save. Action category |
 | `dirtbike.js` | Wheelie King: a side-view dirt bike wheelie game with its own physics (balance point, kickers, backflips, combo), scenery and engine sound. Racing category |
 | `remix-a.js` … `remix-e.js` | The 26 remixes: A idle/platform/rhythm, B pseudo-3D runners, C driving, D sports (1P or 2P), E night-shift survival |
 | `tools/smoke.js` | Headless smoke test for a game file (see Remixes) |
