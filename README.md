@@ -83,6 +83,10 @@ new tab if the frame stays blank.
 `admin.html` (also linked from ⚙️ Settings) is the control room for the whole
 site. Passcode: **portal-admin** — change it in the panel's Site tab.
 
+**Dev only.** The panel works on the copy in this folder (open `index.html` or
+serve the folder locally). On the live github.io site the Settings link is gone
+and `admin.html` shows a "dev copy only" notice instead of unlocking.
+
 | Tab | What it does |
 |-----|--------------|
 | 🎮 Games | Every game in one table: switch a game off, rename it, change its emoji, move it to another category, or 📌 pin it to the front. Search, filter by category, and bulk "hide everything listed" |

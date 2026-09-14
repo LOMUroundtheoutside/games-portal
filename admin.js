@@ -78,7 +78,11 @@ function markDirty() {
 /* ---------- lock ---------- */
 { const sub = document.querySelector('.lock-box .hint'); if (sub) sub.textContent = W.site.name || 'Games Portal'; }
 function unlock() { $('#lock').hidden = true; $('#panel').hidden = false; boot(); }
-if (!W.admin.hash) {
+/* dev only: on the live site (github.io) the panel does not open at all */
+const IS_LIVE = /\.github\.io$/i.test(location.hostname);
+if (IS_LIVE) {
+  $('#lock-form').innerHTML = '<div class="lock-icon">🛠️</div><h1>Admin panel</h1><p class="hint">Only available on the dev copy of the site. Open it from the folder on your own computer.</p>';
+} else if (!W.admin.hash) {
   unlock();
 } else if (sessionStorage.getItem('gp-admin-ok') === W.admin.hash) {
   unlock();

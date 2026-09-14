@@ -24,7 +24,7 @@ const server = http.createServer((req, res) => {
   fs.rmSync(OUT, { recursive: true, force: true });
   fs.mkdirSync(OUT, { recursive: true });
   const chrome = spawn('chromium', ['--headless=new', '--remote-debugging-port=9334', '--use-angle=swiftshader',
-    '--enable-unsafe-swiftshader', '--window-size=1400,900', '--no-first-run', '--user-data-dir=' + OUT + '/profile', 'about:blank'], { stdio: 'ignore' });
+    '--enable-unsafe-swiftshader', '--window-size=1400,900', '--host-resolver-rules=MAP dev-check.github.io 127.0.0.1', '--no-first-run', '--user-data-dir=' + OUT + '/profile', 'about:blank'], { stdio: 'ignore' });
 
   let targets;
   for (let i = 0; i < 40; i++) { await sleep(250); try { targets = await (await fetch('http://127.0.0.1:9334/json')).json(); break; } catch {} }
@@ -40,9 +40,9 @@ const server = http.createServer((req, res) => {
   const send = (method, params = {}) => new Promise(r => { const i = ++id; pending[i] = r; ws.send(JSON.stringify({ id: i, method, params })); });
   await send('Runtime.enable'); await send('Page.enable');
   const ev = async expr => (await send('Runtime.evaluate', { expression: expr, awaitPromise: true, returnByValue: true })).result?.value;
-  const go = async (page, ready) => {
+  const go = async (page, ready, host = '127.0.0.1') => {
     logs = [];
-    await send('Page.navigate', { url: `http://127.0.0.1:${PORT}/${page}` });
+    await send('Page.navigate', { url: `http://${host}:${PORT}/${page}` });
     for (let i = 0; i < 80; i++) { await sleep(150); if (await ev(ready)) return true; }
     return false;
   };
@@ -144,6 +144,17 @@ const server = http.createServer((req, res) => {
   await go('index.html', "typeof openGame === 'function'");
   ok('portal back to normal', (await ev('allGames().length')) === totalGames && (await ev('CFG.hidden.length')) === 0);
   ok('name back to normal', (await ev("document.querySelector('.brand-name').textContent")) === 'Games Portal');
+
+  /* the same files served under a github.io name must behave like the live site: no admin panel */
+  console.log('\n--- live site (fake github.io host) ---');
+  ok('portal boots on live host', await go('index.html', "typeof openGame === 'function'", 'dev-check.github.io'));
+  ok('IS_LIVE detected', await ev('IS_LIVE') === true);
+  ok('no admin link in Settings', await ev("!document.getElementById('open-admin')"));
+  ok('admin.html loads on live host', await go('admin.html', "!!document.getElementById('lock-form')", 'dev-check.github.io'));
+  ok('panel stays locked', await ev("document.getElementById('panel').hidden && !document.getElementById('lock').hidden"));
+  ok('dev-only notice shown', await ev("/dev copy/i.test(document.getElementById('lock-form').textContent)"));
+  ok('no passcode box', await ev("!document.getElementById('lock-code')"));
+  await shot('07-live-admin');
 
   console.log('\n' + (logs.length ? 'console output:\n' + logs.join('\n') : 'no console errors on the last page'));
   console.log(`\n${failures ? failures + ' CHECK(S) FAILED' : 'all checks passed'}   screenshots: ${OUT}`);
