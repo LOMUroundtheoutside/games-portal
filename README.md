@@ -78,6 +78,14 @@ For links you add yourself (Settings → My links) there is an "Open in a new
 tab" tick box, and the ↗ button in the player bar opens any embedded link in a
 new tab if the frame stays blank.
 
+## Pushing a change
+
+GitHub Pages caches every file for ten minutes, so `index.html` and `admin.html` load
+each local script and stylesheet as `file.js?v=<hash of the file>`. `node tools/stamp.js`
+refreshes those stamps and the repo's pre-commit hook runs it for you, so a visitor picks up
+new game code on their next reload instead of running a stale copy. If something still
+looks old right after a push, hard refresh (Ctrl+Shift+R).
+
 ## Admin panel
 
 `admin.html` (also linked from ⚙️ Settings) is the control room for the whole
