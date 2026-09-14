@@ -69,7 +69,7 @@ const server = http.createServer((req, res) => {
   await shot('01-lock');
 
   console.log('\n--- admin.html, unlocked ---');
-  await ev("document.getElementById('lock-code').value='portal-admin';document.getElementById('lock-form').dispatchEvent(new Event('submit'))");
+  await ev("document.getElementById('lock-code').value='150812';document.getElementById('lock-form').dispatchEvent(new Event('submit'))");
   await sleep(300);
   ok('right passcode unlocks', await ev("document.getElementById('lock').hidden && !document.getElementById('panel').hidden"));
   const rows = await ev("document.querySelectorAll('#g-body tr').length");
@@ -145,15 +145,17 @@ const server = http.createServer((req, res) => {
   ok('portal back to normal', (await ev('allGames().length')) === totalGames && (await ev('CFG.hidden.length')) === 0);
   ok('name back to normal', (await ev("document.querySelector('.brand-name').textContent")) === 'Games Portal');
 
-  /* the same files served under a github.io name must behave like the live site: no admin panel */
+  /* the same files served under a github.io name must behave like the live site: panel there too, behind the code */
   console.log('\n--- live site (fake github.io host) ---');
   ok('portal boots on live host', await go('index.html', "typeof openGame === 'function'", 'dev-check.github.io'));
   ok('IS_LIVE detected', await ev('IS_LIVE') === true);
-  ok('no admin link in Settings', await ev("!document.getElementById('open-admin')"));
-  ok('admin.html loads on live host', await go('admin.html', "!!document.getElementById('lock-form')", 'dev-check.github.io'));
-  ok('panel stays locked', await ev("document.getElementById('panel').hidden && !document.getElementById('lock').hidden"));
-  ok('dev-only notice shown', await ev("/dev copy/i.test(document.getElementById('lock-form').textContent)"));
-  ok('no passcode box', await ev("!document.getElementById('lock-code')"));
+  ok('admin link in Settings', await ev("!!document.getElementById('open-admin')"));
+  ok('admin.html loads on live host', await go('admin.html', "typeof simpleHash === 'function'", 'dev-check.github.io'));
+  await ev("sessionStorage.clear()");
+  ok('locked until the code', await ev("document.getElementById('panel').hidden && !document.getElementById('lock').hidden"));
+  await ev("document.getElementById('lock-code').value='150812';document.getElementById('lock-form').dispatchEvent(new Event('submit'))");
+  await sleep(300);
+  ok('code 150812 unlocks on live host', await ev("document.getElementById('lock').hidden && !document.getElementById('panel').hidden"));
   await shot('07-live-admin');
 
   console.log('\n' + (logs.length ? 'console output:\n' + logs.join('\n') : 'no console errors on the last page'));

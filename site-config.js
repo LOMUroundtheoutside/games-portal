@@ -41,6 +41,6 @@ window.SITE_CONFIG = {
   links: [],
 
   /* Passcode for admin.html. This is a speed bump, not security: anyone can read
-     this file on the live site. Change it in the panel. Default: portal-admin */
-  admin: { scheme: 'simple', hash: '1ao2cag-ggm0ku' },
+     this file on the live site. Change it in the panel. Default: 150812 */
+  admin: { scheme: 'simple', hash: 's4t2gx-307d6n' },
 };

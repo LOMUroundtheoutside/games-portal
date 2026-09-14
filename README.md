@@ -81,11 +81,8 @@ new tab if the frame stays blank.
 ## Admin panel
 
 `admin.html` (also linked from ⚙️ Settings) is the control room for the whole
-site. Passcode: **portal-admin** — change it in the panel's Site tab.
-
-**Dev only.** The panel works on the copy in this folder (open `index.html` or
-serve the folder locally). On the live github.io site the Settings link is gone
-and `admin.html` shows a "dev copy only" notice instead of unlocking.
+site, on the live site as well as the copy in this folder. Passcode: **150812**
+— change it in the panel's Site tab.
 
 | Tab | What it does |
 |-----|--------------|

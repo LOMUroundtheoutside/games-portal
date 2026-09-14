@@ -352,9 +352,7 @@ $('#import-data').onclick = () => {
 $('#reset-data').onclick = () => { if (confirm('Reset all settings, favourites and high scores?')) { localStorage.removeItem('gp'); S = load(); commit(); fillSettings(); toast('Reset done'); } };
 /* the admin panel lives on its own page so the portal stays light */
 const adminLink = document.getElementById('open-admin');
-/* dev only: the live site never shows the admin panel */
-if (adminLink && IS_LIVE) adminLink.closest('p').remove();
-else if (adminLink) adminLink.onclick = e => { e.preventDefault(); window.open('admin.html', '_blank', 'noopener'); };
+if (adminLink) adminLink.onclick = e => { e.preventDefault(); window.open('admin.html', '_blank', 'noopener'); };
 
 /* ---------- nav & search ---------- */
 $$('.chip[data-cat]').forEach(b => b.onclick = () => { cat = b.dataset.cat; $$('.chip').forEach(x => x.classList.toggle('active', x === b)); render(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
