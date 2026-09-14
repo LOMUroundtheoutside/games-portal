@@ -321,3 +321,15 @@ kbd {
 .hotbar3d button { display: flex; flex-direction: column; align-items: center; gap: 3px; width: 44px; padding: 5px 0; border-radius: 8px; border: 2px solid transparent; background: rgba(255,255,255,.08); color: #fff; font: 700 11px ui-monospace, monospace; }
 .hotbar3d button.on { border-color: #fff; background: rgba(255,255,255,.22); }
 .hotbar3d button i { display: block; width: 22px; height: 22px; border-radius: 4px; border: 1px solid rgba(0,0,0,.4); }
+
+/* Announcement banner set in the admin panel */
+.announce {
+  padding: 10px 18px; font-weight: 700; text-align: center;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--accent) 22%, var(--bg2)); color: var(--text);
+}
+.announce.good { background: color-mix(in srgb, #22c55e 22%, var(--bg2)); }
+.announce.warn { background: color-mix(in srgb, var(--danger) 22%, var(--bg2)); }
+/* pinned games get the badge slot under the star, so a high score can keep the corner */
+.badge.pin { top: 44px; right: 8px; left: auto; background: var(--accent); font-size: .75rem; }
+.admin-link { color: var(--accent); font-weight: 700; text-decoration: underline; }

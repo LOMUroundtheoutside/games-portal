@@ -36,7 +36,35 @@ const DEFAULT_ICON = document.getElementById('favicon').href;
 /* live site (github.io) vs the copy on your own computer: different tab icon and title so you can tell them apart */
 const IS_LIVE = /\.github\.io$/i.test(location.hostname);
 const emojiIcon = e => 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>${e}</text></svg>`);
-const SITE_ICON = IS_LIVE ? DEFAULT_ICON : emojiIcon('🛠️');
+/* ---------- site config ----------
+   site-config.js is the copy everybody gets; the admin panel can also leave a
+   preview in this browser's localStorage, which wins here only. */
+function mergeCfg(...srcs) {
+  const d = {
+    version: 1,
+    site: { name: 'Games Portal', icon: '\u{1F3AE}', tagline: 'Play anything, anywhere.' },
+    announcement: { text: '', level: 'info' },
+    defaults: {}, features: { chat: true, web: true, customLinks: true },
+    hidden: [], featured: [], overrides: {}, links: [],
+    admin: { scheme: 'simple', hash: '' },
+  };
+  for (const c of srcs) {
+    if (!c || typeof c !== 'object') continue;
+    for (const k of ['hidden', 'featured']) if (Array.isArray(c[k])) d[k] = c[k].slice();
+    if (Array.isArray(c.links)) d.links = c.links.slice();
+    for (const k of ['site', 'announcement', 'defaults', 'features', 'admin']) if (c[k] && typeof c[k] === 'object') d[k] = { ...d[k], ...c[k] };
+    if (c.overrides && typeof c.overrides === 'object') d.overrides = { ...d.overrides, ...c.overrides };
+    if (c.version) d.version = c.version;
+  }
+  return d;
+}
+const CFG_FILE = window.SITE_CONFIG || null;
+let CFG_LOCAL = null;
+try { CFG_LOCAL = JSON.parse(localStorage.getItem('gp-site') || 'null'); } catch {}
+const CFG = mergeCfg(CFG_FILE, CFG_LOCAL);
+/* a brand-new visitor starts from the site's defaults */
+for (const k of ['theme', 'panicUrl', 'panicKey', 'panicMode', 'sound']) if (CFG.defaults[k] !== undefined) DEFAULTS[k] = CFG.defaults[k];
+const SITE_ICON = IS_LIVE ? emojiIcon(CFG.site.icon || '🎮') : emojiIcon('🛠️');
 
 let S = load();
 function load() { try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem('gp') || '{}') }; } catch { return { ...DEFAULTS }; } }
@@ -66,22 +94,47 @@ function toast(msg, ms = 1800) {
 /* ---------- catalogue ---------- */
 let cat = 'all', query = '', sort = 'name';
 
-function allGames() {
-  const custom = S.custom.map((c, i) => ({ id: 'custom:' + i, title: c.name, emoji: '🔗', cat: 'custom', colors: ['#334155', '#64748b'], url: c.url, newtab: !!c.newtab, help: c.newtab ? 'Opens ' + c.url + ' in a new tab.' : 'Opens ' + c.url + ' inside this page. If it stays blank, use ↗ to open it in a new tab.' }));
-  return [...GAMES, ...WEB_GAMES, ...custom];
+const linkGame = (id, c) => ({ id, title: c.name, emoji: c.emoji || '🔗', cat: 'custom',
+  colors: c.colors || ['#334155', '#64748b'], url: c.url, newtab: !!c.newtab,
+  help: c.newtab ? 'Opens ' + c.url + ' in a new tab.' : 'Opens ' + c.url + ' inside this page. If it stays blank, use ↗ to open it in a new tab.' });
+
+/* a game as the admin panel has it: renamed, re-emojied or moved to another category */
+function dressed(g) {
+  const o = CFG.overrides[g.id];
+  if (!o) return g;
+  const out = { ...g };
+  if (o.title) out.title = o.title;
+  if (o.emoji) out.emoji = o.emoji;
+  if (o.cat) out.cat = o.cat;
+  return out;
 }
+
+/* every game there is, admin panel included. Hidden ones are still in here so a
+   favourite or a remix link never breaks; visible() is what drops them. */
+function allGames() {
+  const siteLinks = CFG.links.map((c, i) => linkGame('site:' + i, c));
+  const custom = CFG.features.customLinks ? S.custom.map((c, i) => linkGame('custom:' + i, c)) : [];
+  const web = CFG.features.web ? WEB_GAMES : [];
+  return [...GAMES, ...web, ...siteLinks, ...custom].map(dressed);
+}
+const isHidden = id => CFG.hidden.includes(id);
 function findGame(id) { return allGames().find(g => g.id === id); }
 
 function visible() {
-  let list = allGames();
+  let list = allGames().filter(g => !isHidden(g.id));
   if (cat === 'favorites') list = list.filter(g => S.favorites.includes(g.id));
-  else if (cat === 'recent') list = S.recent.map(findGame).filter(Boolean);
+  else if (cat === 'recent') list = S.recent.map(findGame).filter(g => g && !isHidden(g.id));
   else if (cat !== 'all') list = list.filter(g => g.cat === cat);
   if (query) list = list.filter(g => g.title.toLowerCase().includes(query) || g.cat.includes(query));
   if (cat !== 'recent') {
     if (sort === 'name') list.sort((a, b) => a.title.localeCompare(b.title));
     else if (sort === 'plays') list.sort((a, b) => (S.plays[b.id] || 0) - (S.plays[a.id] || 0));
     else if (sort === 'new') list.reverse();
+    /* games the admin panel pinned come first, in the order they were pinned */
+    if (CFG.featured.length) {
+      const rank = g => { const i = CFG.featured.indexOf(g.id); return i < 0 ? Infinity : i; };
+      list.sort((a, b) => rank(a) - rank(b));
+    }
   }
   return list;
 }
@@ -100,6 +153,7 @@ function render() {
     card.style.setProperty('--c1', g.colors[0]); card.style.setProperty('--c2', g.colors[1]);
     card.innerHTML = `
       <div class="card-art">${g.emoji}</div>
+      ${CFG.featured.includes(g.id) ? '<span class="badge pin">📌</span>' : ''}
       ${S.best[g.id] ? `<span class="badge">🏆 ${S.best[g.id]}</span>` : ''}
       <button class="card-fav ${fav ? 'on' : ''}" title="Favourite">${fav ? '★' : '☆'}</button>
       <div class="card-body">
@@ -110,7 +164,8 @@ function render() {
     card.querySelector('.card-fav').onclick = e => { e.stopPropagation(); toggleFav(g.id); };
     grid.appendChild(card);
   });
-  $('#stat-count').textContent = `${GAMES.length} built-in · ${WEB_GAMES.length} web · ${S.custom.length} links`;
+  const shown = allGames().filter(g => !isHidden(g.id)).length;
+  $('#stat-count').textContent = `${shown} games` + (CFG.hidden.length ? ` · ${CFG.hidden.length} hidden` : '');
 }
 const esc = s => String(s).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
 
@@ -204,9 +259,33 @@ window.addEventListener('keydown', e => {
 
 /* ---------- cloak & theme ---------- */
 function applyCloak() {
-  document.title = S.cloakTitle || (IS_LIVE ? 'Games Portal' : 'Games Portal · DEV');
+  const name = CFG.site.name || 'Games Portal';
+  document.title = S.cloakTitle || (IS_LIVE ? name : name + ' · DEV');
   $('#favicon').href = S.cloakIcon || SITE_ICON;
-  $('#dev-tag').hidden = IS_LIVE; $('.brand-icon').textContent = IS_LIVE ? '🎮' : '🛠️';
+  $('#dev-tag').hidden = IS_LIVE; $('.brand-icon').textContent = IS_LIVE ? (CFG.site.icon || '🎮') : '🛠️';
+  $('.brand-name').textContent = name;
+}
+
+/* things the admin panel controls that are not games */
+function applySiteChrome() {
+  const h1 = document.querySelector('.hero h1'); if (h1 && CFG.site.tagline) h1.textContent = CFG.site.tagline;
+  const bar = $('#announce');
+  if (bar) {
+    const text = (CFG.announcement.text || '').trim();
+    bar.hidden = !text; bar.textContent = text;
+    bar.className = 'announce ' + (CFG.announcement.level || 'info');
+  }
+  $('#btn-chat').hidden = !CFG.features.chat;
+  const chip = c => document.querySelector(`.chip[data-cat="${c}"]`);
+  if (chip('web')) chip('web').hidden = !CFG.features.web;
+  if (chip('custom')) chip('custom').hidden = !CFG.features.customLinks;
+  const myLinks = $('#my-links-section'); if (myLinks) myLinks.hidden = !CFG.features.customLinks;
+  /* categories with nothing left in them after hiding */
+  [...document.querySelectorAll('.chip[data-cat]')].forEach(b => {
+    const c = b.dataset.cat;
+    if (['all', 'favorites', 'recent', 'custom', 'web'].includes(c)) return;
+    b.hidden = !allGames().some(g => g.cat === c && !isHidden(g.id));
+  });
 }
 function applyTheme() { document.documentElement.dataset.theme = S.theme; }
 function applyPanicUi() {
@@ -244,7 +323,7 @@ function fillSettings() {
     cl.appendChild(d);
   });
 }
-function commit() { save(); applyCloak(); applyTheme(); applyPanicUi(); render(); }
+function commit() { save(); applyCloak(); applyTheme(); applyPanicUi(); applySiteChrome(); render(); }
 
 $('#set-panic-url').onchange = e => { let v = e.target.value.trim(); if (v && !/^https?:\/\//i.test(v)) v = 'https://' + v; S.panicUrl = v || DEFAULTS.panicUrl; commit(); fillSettings(); };
 $('#set-panic-key').onfocus = e => { e.target.value = 'press a key…'; };
@@ -271,6 +350,9 @@ $('#import-data').onclick = () => {
   inp.click();
 };
 $('#reset-data').onclick = () => { if (confirm('Reset all settings, favourites and high scores?')) { localStorage.removeItem('gp'); S = load(); commit(); fillSettings(); toast('Reset done'); } };
+/* the admin panel lives on its own page so the portal stays light */
+const adminLink = document.getElementById('open-admin');
+if (adminLink) adminLink.onclick = e => { e.preventDefault(); window.open('admin.html', '_blank', 'noopener'); };
 
 /* ---------- nav & search ---------- */
 $$('.chip[data-cat]').forEach(b => b.onclick = () => { cat = b.dataset.cat; $$('.chip').forEach(x => x.classList.toggle('active', x === b)); render(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
@@ -279,4 +361,4 @@ $('#search').oninput = e => { query = e.target.value.trim().toLowerCase(); rende
 $('#sort').onchange = e => { sort = e.target.value; render(); };
 
 /* ---------- boot ---------- */
-applyCloak(); applyTheme(); applyPanicUi(); render();
+applyCloak(); applyTheme(); applyPanicUi(); applySiteChrome(); render();

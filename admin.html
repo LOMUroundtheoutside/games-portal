@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin · Games Portal</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%9B%A0%EF%B8%8F%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body class="admin-body">
+
+<!-- Lock screen -->
+<div class="lock" id="lock">
+  <form class="lock-box" id="lock-form">
+    <div class="lock-icon">🛠️</div>
+    <h1>Admin panel</h1>
+    <p class="hint">Games Portal</p>
+    <input id="lock-code" type="password" placeholder="Passcode" autocomplete="current-password" autofocus>
+    <button class="btn" type="submit">Unlock</button>
+    <p class="lock-msg" id="lock-msg" hidden></p>
+    <p class="hint lock-note">Forgot it? Open <code>site-config.js</code> and set <code>admin.hash</code> to an empty string, then reload this page.</p>
+  </form>
+</div>
+
+<div id="panel" hidden>
+
+<header class="topbar">
+  <a class="brand" href="index.html">
+    <span class="brand-icon">🛠️</span>
+    <span class="brand-name">Admin</span><span class="dev-tag" id="unsaved" hidden>UNSAVED</span>
+  </a>
+  <nav class="topnav">
+    <a class="btn ghost" href="index.html">← Back to the portal</a>
+    <button class="btn ghost" id="btn-apply" title="Use these settings in this browser right now">Apply here</button>
+    <button class="btn" id="btn-download" title="Save site-config.js for the whole site">⬇ Download site-config.js</button>
+  </nav>
+</header>
+
+<nav class="catbar">
+  <button class="chip active" data-tab="games">🎮 Games</button>
+  <button class="chip" data-tab="site">🏷️ Site</button>
+  <button class="chip" data-tab="links">🔗 Links</button>
+  <button class="chip" data-tab="stats">📊 Stats</button>
+  <button class="chip" data-tab="publish">🚀 Publish</button>
+  <span class="chip-count" id="admin-count"></span>
+</nav>
+
+<main class="admin-main">
+
+  <!-- Games -->
+  <section class="tab" data-tab="games">
+    <div class="admin-toolbar">
+      <div class="search">
+        <span class="search-icon">🔍</span>
+        <input id="g-search" type="search" placeholder="Search games…" autocomplete="off">
+      </div>
+      <label class="field">Category
+        <select id="g-cat"><option value="">All categories</option></select>
+      </label>
+      <label class="field">Show
+        <select id="g-state">
+          <option value="">Everything</option>
+          <option value="visible">Visible only</option>
+          <option value="hidden">Hidden only</option>
+          <option value="pinned">Pinned only</option>
+          <option value="renamed">Changed only</option>
+        </select>
+      </label>
+      <div class="spacer"></div>
+      <button class="btn ghost" id="g-show-all">Show all</button>
+      <button class="btn ghost" id="g-hide-shown">Hide everything listed</button>
+      <button class="btn ghost" id="g-clear">Undo all changes</button>
+    </div>
+    <div class="table-wrap">
+      <table class="admin-table" id="g-table">
+        <thead><tr>
+          <th class="c-on">On</th><th class="c-art">Game</th><th>Name shown</th>
+          <th class="c-emoji">Icon</th><th class="c-cat">Category</th>
+          <th class="c-num">Plays</th><th class="c-num">Best</th><th class="c-pin">Pin</th>
+        </tr></thead>
+        <tbody id="g-body"></tbody>
+      </table>
+      <p class="empty" id="g-empty" hidden>No game matches that.</p>
+    </div>
+  </section>
+
+  <!-- Site -->
+  <section class="tab" data-tab="site" hidden>
+    <div class="cols">
+      <div class="panel-card">
+        <h3>🏷️ Name and look</h3>
+        <div class="row">
+          <label class="field">Site name <input id="s-name" type="text" placeholder="Games Portal"></label>
+          <label class="field">Tab icon (emoji) <input id="s-icon" type="text" maxlength="4" placeholder="🎮"></label>
+        </div>
+        <label class="field">Big line on the home page <input id="s-tagline" type="text" placeholder="Play anything, anywhere."></label>
+      </div>
+
+      <div class="panel-card">
+        <h3>📣 Banner</h3>
+        <p class="hint">A strip across the top of the portal. Leave it empty for none.</p>
+        <label class="field">Message <input id="s-announce" type="text" placeholder="e.g. New racing games are up!"></label>
+        <label class="field">Colour
+          <select id="s-announce-level">
+            <option value="info">Purple (news)</option>
+            <option value="good">Green (good news)</option>
+            <option value="warn">Red (warning)</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="panel-card">
+        <h3>🆕 What a new visitor gets</h3>
+        <p class="hint">Only affects someone opening the site for the first time. Anyone can change it afterwards in Settings.</p>
+        <div class="row">
+          <label class="field">Theme
+            <select id="s-theme">
+              <option value="midnight">Midnight</option><option value="ocean">Ocean</option>
+              <option value="forest">Forest</option><option value="candy">Candy</option>
+              <option value="light">Light</option>
+            </select>
+          </label>
+          <label class="field">Panic key <input id="s-panic-key" type="text" readonly placeholder="click, then press a key"></label>
+        </div>
+        <label class="field">Panic destination <input id="s-panic-url" type="url" placeholder="https://teams.microsoft.com"></label>
+        <label class="check"><input type="checkbox" id="s-sound"> Sound effects on by default</label>
+      </div>
+
+      <div class="panel-card">
+        <h3>🧩 Sections</h3>
+        <p class="hint">Switch whole parts of the portal off for everybody.</p>
+        <label class="check"><input type="checkbox" id="f-chat"> 💬 Chat</label>
+        <label class="check"><input type="checkbox" id="f-web"> 🌐 Web games</label>
+        <label class="check"><input type="checkbox" id="f-custom"> 🔗 My links (visitors adding their own)</label>
+      </div>
+
+      <div class="panel-card">
+        <h3>🔒 Passcode</h3>
+        <p class="hint">Guards this page only. Anyone can read <code>site-config.js</code> on the live site, so treat it as a door, not a safe.</p>
+        <div class="row">
+          <label class="field">New passcode <input id="s-pass" type="password" placeholder="leave empty for no passcode"></label>
+          <button class="btn ghost" id="s-pass-set">Set</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Links -->
+  <section class="tab" data-tab="links" hidden>
+    <div class="panel-card">
+      <h3>🔗 Links for everybody</h3>
+      <p class="hint">These show up in 🔗 My links for every visitor. Tick "new tab" for sites that refuse to be embedded.</p>
+      <div class="row">
+        <input id="l-name" type="text" placeholder="Name">
+        <input id="l-url" type="url" placeholder="https://…">
+        <input id="l-emoji" type="text" maxlength="4" placeholder="🔗" class="narrow">
+        <button class="btn" id="l-add">Add</button>
+      </div>
+      <label class="check"><input type="checkbox" id="l-newtab"> Open in a new tab</label>
+      <div id="l-list" class="custom-list"></div>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="tab" data-tab="stats" hidden>
+    <p class="hint">Counted in this browser only. The portal has no server, so nobody else's plays reach here.</p>
+    <div class="stat-row" id="stat-tiles"></div>
+    <div class="cols">
+      <div class="panel-card">
+        <h3>🔥 Most played</h3>
+        <div id="stat-top"></div>
+      </div>
+      <div class="panel-card">
+        <h3>🗂️ By category</h3>
+        <div id="stat-cats"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Publish -->
+  <section class="tab" data-tab="publish" hidden>
+    <div class="panel-card">
+      <h3>🚀 Getting your changes onto the live site</h3>
+      <ol class="steps">
+        <li><b>Apply here</b> tries the changes in this browser straight away. Nobody else sees them.</li>
+        <li><b>Download site-config.js</b> and drop the file into the games portal folder, replacing the old one.</li>
+        <li>Commit and push it. GitHub Pages rebuilds and everyone gets the new version.</li>
+      </ol>
+      <pre class="cmd">git add site-config.js
+git commit -m "Admin: update site config"
+git push</pre>
+      <div class="row">
+        <button class="btn" id="p-download">⬇ Download site-config.js</button>
+        <button class="btn ghost" id="p-copy">📋 Copy the file</button>
+        <button class="btn ghost" id="p-clear-local">Drop my local preview</button>
+      </div>
+    </div>
+    <div class="panel-card">
+      <h3>📄 site-config.js</h3>
+      <pre class="preview" id="p-preview"></pre>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="games.js"></script>
+<script src="racing.js"></script>
+<script src="dirtbike.js"></script>
+<script src="worldcup.js"></script>
+<script src="remix-a.js"></script>
+<script src="remix-b.js"></script>
+<script src="remix-c.js"></script>
+<script src="remix-d.js"></script>
+<script src="remix-e.js"></script>
+<script src="lib/three.min.js"></script>
+<script src="three-d.js"></script>
+<script src="weblinks.js"></script>
+<script src="site-config.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>
