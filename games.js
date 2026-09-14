@@ -2,6 +2,10 @@
 const rnd = n => Math.floor(Math.random() * n);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
+/* hacks (admin panel -> Hacks tab) live in window.GP_HACKS: {on, speed, frozen}.
+   They only touch games that run through this engine, never the web ones in an iframe. */
+const hk = () => (window.GP_HACKS && window.GP_HACKS.on) ? window.GP_HACKS : null;
+const hkMs = ms => { const h = hk(); return h && h.speed > 0 ? ms / h.speed : ms; };
 function makeApi(stage, hooks) {
   const cleanups = [];
   const api = {
@@ -42,12 +46,12 @@ function makeApi(stage, hooks) {
     on(target, ev, fn) { target.addEventListener(ev, fn); cleanups.push(() => target.removeEventListener(ev, fn)); },
     loop(fn) {
       let last = performance.now(), raf;
-      const step = t => { const dt = Math.min(50, t - last); last = t; fn(dt); raf = requestAnimationFrame(step); };
+      const step = t => { let dt = Math.min(50, t - last); last = t; const h = hk(); if (h) dt = h.frozen ? 0 : dt * (h.speed || 1); fn(dt); raf = requestAnimationFrame(step); };
       raf = requestAnimationFrame(step);
       cleanups.push(() => cancelAnimationFrame(raf));
     },
-    every(ms, fn) { const id = setInterval(fn, ms); cleanups.push(() => clearInterval(id)); return id; },
-    after(ms, fn) { const id = setTimeout(fn, ms); cleanups.push(() => clearTimeout(id)); return id; },
+    every(ms, fn) { const id = setInterval(fn, hkMs(ms)); cleanups.push(() => clearInterval(id)); return id; },
+    after(ms, fn) { const id = setTimeout(fn, hkMs(ms)); cleanups.push(() => clearTimeout(id)); return id; },
     overlay(html) {
       let o = stage.querySelector('.overlay');
       if (!html) { if (o) o.remove(); return; }

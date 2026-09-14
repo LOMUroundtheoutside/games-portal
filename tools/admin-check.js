@@ -118,6 +118,22 @@ const server = http.createServer((req, res) => {
   ok('publish preview renders', (await ev("document.getElementById('p-preview').textContent.length")) > 200);
   await shot('04-publish');
 
+  console.log('\n--- hacks tab ---');
+  await ev("document.querySelector('.chip[data-tab=hacks]').click()");
+  ok('hacks tab opens', await ev("!document.querySelector('.tab[data-tab=hacks]').hidden"));
+  ok('hacks off by default', await ev("!document.getElementById('h-on').checked && !localStorage.getItem('gp-hacks')"));
+  await ev("document.getElementById('h-on').click(); document.querySelector('#h-speed .pill[data-v=\"2\"]').click(); document.querySelector('#h-score .pill[data-v=\"10\"]').click()");
+  const hk = await ev("JSON.parse(localStorage.getItem('gp-hacks'))");
+  ok('hacks saved', hk && hk.on === true && hk.speed === 2 && hk.scoreX === 10, JSON.stringify(hk));
+  ok('speed pill lit', await ev("document.querySelector('#h-speed .pill.on').dataset.v") === '2');
+  await ev("document.getElementById('h-game').value='3d:slope'; document.getElementById('h-best').value='4242'; document.getElementById('h-best-set').click()");
+  ok('best score set', (await ev("JSON.parse(localStorage.getItem('gp')).best['3d:slope']")) === 4242);
+  ok('web games not in the list', await ev("[...document.querySelectorAll('#h-game option')].every(o => !o.value.startsWith('web:'))"));
+  await ev("document.getElementById('h-nights').click()");
+  ok('nights unlocked', (await ev("localStorage.getItem('gp-remix-remix:lighthouse-watch')")) === '5');
+  await shot('05b-hacks');
+  await ev("document.querySelector('.chip[data-tab=publish]').click()");
+
   console.log('\n--- apply, then back to the portal ---');
   await ev('applyHere()');
   ok('preview saved to this browser', (await ev("!!localStorage.getItem('gp-site')")));
@@ -132,18 +148,29 @@ const server = http.createServer((req, res) => {
   ok('site name applied', (await ev("document.querySelector('.brand-name').textContent")) === 'Theo Games');
   await shot('05-portal-after');
 
-  console.log('\n--- a game still runs ---');
+  console.log('\n--- a game still runs, hacked ---');
   await ev("openGame('3d:slope')"); await sleep(1200);
   ok('player opened', !(await ev("document.getElementById('player').hidden")));
   ok('stage has content', (await ev("document.getElementById('stage').childElementCount")) > 0);
+  ok('portal sees the hacks', await ev("GP_HACKS.on && GP_HACKS.speed === 2 && GP_HACKS.scoreX === 10"));
+  ok('hacks badge shows', await ev("!document.getElementById('player-hacks').hidden && document.getElementById('player-hacks').textContent.includes('2×')"));
+  ok('hacked best score shows', (await ev("document.getElementById('player-best').textContent")) === '4242');
+  await ev("window.dispatchEvent(new KeyboardEvent('keydown', {key: ']'}))");
+  ok('] speeds up', await ev("GP_HACKS.speed === 3 && JSON.parse(localStorage.getItem('gp-hacks')).speed === 3"));
+  await ev("window.dispatchEvent(new KeyboardEvent('keydown', {key: '\\\\'}))");
+  ok('\\ freezes', await ev("GP_HACKS.frozen === true && document.getElementById('player-hacks').textContent.includes('FROZEN')"));
+  await ev("window.dispatchEvent(new KeyboardEvent('keyup', {key: '\\\\'}))");
+  ok('release unfreezes', await ev("GP_HACKS.frozen === false"));
+  ok('score hook multiplies', await ev("api.score(10); document.getElementById('player-best').textContent") === '4242' && await ev("api.score(1000); document.getElementById('player-best').textContent") === '10000');
   await shot('06-game');
   await ev('closeGame()');
 
   console.log('\n--- undo the preview ---');
-  await ev("localStorage.removeItem('gp-site')");
+  await ev("localStorage.removeItem('gp-site'); localStorage.removeItem('gp-hacks')");
   await go('index.html', "typeof openGame === 'function'");
   ok('portal back to normal', (await ev('allGames().length')) === totalGames && (await ev('CFG.hidden.length')) === 0);
   ok('name back to normal', (await ev("document.querySelector('.brand-name').textContent")) === 'Games Portal');
+  ok('hacks off again', await ev("!GP_HACKS.on"));
 
   /* the same files served under a github.io name must behave like the live site: panel there too, behind the code */
   console.log('\n--- live site (fake github.io host) ---');

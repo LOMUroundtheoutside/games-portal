@@ -96,6 +96,7 @@ $$('.chip[data-tab]').forEach(b => b.onclick = () => {
   $$('.chip[data-tab]').forEach(x => x.classList.toggle('active', x === b));
   $$('.tab').forEach(t => t.hidden = t.dataset.tab !== b.dataset.tab);
   if (b.dataset.tab === 'stats') renderStats();
+  if (b.dataset.tab === 'hacks') renderHacks();
   if (b.dataset.tab === 'publish') renderPreview();
 });
 
@@ -331,6 +332,40 @@ window.SITE_CONFIG = {
 };
 `;
 }
+/* ---------- hacks (this browser only, localStorage 'gp-hacks'; app.js reads it live) ---------- */
+const HACKS_DEFAULT = { on: false, speed: 1, scoreX: 1, keys: true };
+const HACK_SPEEDS = [0.25, 0.5, 0.75, 1, 1.5, 2, 3], HACK_SCORES = [1, 2, 5, 10, 100];
+const NIGHT_GAMES = ['remix:arcade-nightshift', 'remix:toyshop-lockin', 'remix:lighthouse-watch', 'remix:nursery-night'];
+function loadHacks() { try { return { ...HACKS_DEFAULT, ...JSON.parse(localStorage.getItem('gp-hacks') || '{}') }; } catch { return { ...HACKS_DEFAULT }; } }
+let H = loadHacks();
+function saveHacks() { try { localStorage.setItem('gp-hacks', JSON.stringify(H)); } catch {} renderHacks(); }
+/* the portal's own settings (best scores live in there) */
+const portalState = () => { try { return JSON.parse(localStorage.getItem('gp') || '{}'); } catch { return {}; } };
+const savePortalState = s => { try { localStorage.setItem('gp', JSON.stringify(s)); } catch {} };
+function renderHacks() {
+  $('#h-on').checked = !!H.on; $('#h-keys').checked = !!H.keys;
+  const pills = (box, vals, cur, fmt, set) => {
+    box.innerHTML = vals.map(v => `<button class="btn ghost pill ${v === cur ? 'on' : ''}" data-v="${v}">${fmt(v)}</button>`).join('');
+    [...box.querySelectorAll('.pill')].forEach(b => b.onclick = () => set(+b.dataset.v));
+  };
+  pills($('#h-speed'), HACK_SPEEDS, H.speed, v => v + '×', v => { H.speed = v; saveHacks(); });
+  pills($('#h-score'), HACK_SCORES, H.scoreX, v => '×' + v, v => { H.scoreX = v; saveHacks(); });
+  const sel = $('#h-game'), keep = sel.value;
+  const best = portalState().best || {};
+  sel.innerHTML = catalogue().filter(g => !g.url).sort((a, b) => a.title.localeCompare(b.title)).map(g => `<option value="${esc(g.id)}">${esc(g.emoji + ' ' + g.title)} — best ${best[g.id] || 0}</option>`).join('');
+  if (keep) sel.value = keep;
+}
+$('#h-on').onchange = e => { H.on = e.target.checked; saveHacks(); toast(H.on ? 'Hacks on' : 'Hacks off'); };
+$('#h-keys').onchange = e => { H.keys = e.target.checked; saveHacks(); };
+$('#h-best-set').onclick = () => {
+  const id = $('#h-game').value, n = Math.max(0, Math.floor(+$('#h-best').value || 0));
+  const s = portalState(); s.best = s.best || {}; s.best[id] = n; savePortalState(s); renderHacks(); toast('Best for ' + (orig(id) || {}).title + ' is now ' + n);
+};
+$('#h-best-max').onclick = () => { const s = portalState(); s.best = {}; catalogue().filter(g => !g.url).forEach(g => s.best[g.id] = 999999); savePortalState(s); renderHacks(); toast('Every best score is 999,999'); };
+$('#h-best-wipe').onclick = () => { if (!confirm('Wipe every best score in this browser?')) return; const s = portalState(); s.best = {}; savePortalState(s); renderHacks(); toast('Best scores wiped'); };
+$('#h-nights').onclick = () => { NIGHT_GAMES.forEach(id => localStorage.setItem('gp-remix-' + id, '5')); toast('All 5 nights unlocked in the four Night Shift games'); };
+$('#h-nights-reset').onclick = () => { NIGHT_GAMES.forEach(id => localStorage.removeItem('gp-remix-' + id)); toast('Night Shift games back to night 1'); };
+
 function renderPreview() { const p = $('#p-preview'); if (p) p.textContent = configText(); }
 
 function download() {
@@ -361,6 +396,6 @@ $('#p-clear-local').onclick = () => {
 function boot() {
   const cats = $('#g-cat');
   Object.keys(TITLES).forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = TITLES[c]; cats.appendChild(o); });
-  fillSite(); fillLinks(); renderGames(); renderPreview(); markDirty();
+  fillSite(); fillLinks(); renderGames(); renderHacks(); renderPreview(); markDirty();
   if (LOCAL_CFG) toast('This browser is previewing changes that are not in site-config.js yet', 3200);
 }

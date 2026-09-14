@@ -67,6 +67,23 @@ for (const k of ['theme', 'panicUrl', 'panicKey', 'panicMode', 'sound']) if (CFG
 const SITE_ICON = IS_LIVE ? emojiIcon(CFG.site.icon || '🎮') : emojiIcon('🛠️');
 
 let S = load();
+
+/* ---------- hacks ----------
+   Set in the admin panel (Hacks tab), kept in this browser only (localStorage 'gp-hacks').
+   Read live by the game engine (window.GP_HACKS) so they only reach the games built into
+   this portal; a web game in an iframe cannot be touched. */
+const HACKS_DEFAULT = { on: false, speed: 1, scoreX: 1, keys: true };
+const HACK_SPEEDS = [0.25, 0.5, 0.75, 1, 1.5, 2, 3];
+function loadHacks() { try { return { ...HACKS_DEFAULT, ...JSON.parse(localStorage.getItem('gp-hacks') || '{}'), frozen: false }; } catch { return { ...HACKS_DEFAULT, frozen: false }; } }
+let HACKS = window.GP_HACKS = loadHacks();
+function saveHacks() { const { frozen, ...rest } = HACKS; try { localStorage.setItem('gp-hacks', JSON.stringify(rest)); } catch {} }
+function hackBadge() {
+  const b = document.getElementById('player-hacks'); if (!b) return;
+  const show = HACKS.on && current && !current.url;
+  b.hidden = !show;
+  if (show) b.textContent = '🧪 ' + (HACKS.frozen ? 'FROZEN' : HACKS.speed + '×') + (HACKS.scoreX > 1 ? ' · score ×' + HACKS.scoreX : '');
+}
+function setHackSpeed(v) { HACKS.speed = v; saveHacks(); hackBadge(); toast('Game speed ' + v + '×', 900); }
 function load() { try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem('gp') || '{}') }; } catch { return { ...DEFAULTS }; } }
 function save() { localStorage.setItem('gp', JSON.stringify(S)); }
 
@@ -206,9 +223,10 @@ function openGame(id) {
   }
   api = makeApi(stage, {
     beep,
-    score(n) { if (n > (S.best[id] || 0)) { S.best[id] = n; $('#player-best').textContent = n; save(); } },
+    score(n) { if (HACKS.on && HACKS.scoreX > 1) n = Math.round(n * HACKS.scoreX); if (n > (S.best[id] || 0)) { S.best[id] = n; $('#player-best').textContent = n; save(); } },
   });
   g.run(stage, api);
+  hackBadge();
 }
 function closeGame() {
   if (api) { api.stop(); api = null; }
@@ -218,6 +236,20 @@ function closeGame() {
 function updateFavBtn() { const on = current && S.favorites.includes(current.id); const b = $('#player-fav'); b.textContent = on ? '★' : '☆'; b.classList.toggle('on', on); }
 
 $('#player-close').onclick = closeGame;
+/* hack hotkeys, only while hacks are on and a built-in game is open: [ slower, ] faster, hold \ to freeze */
+window.addEventListener('keydown', e => {
+  if (!HACKS.on || !HACKS.keys || !api || e.target.tagName === 'INPUT' || e.repeat) return;
+  const i = HACK_SPEEDS.indexOf(HACKS.speed);
+  if (e.key === '[') setHackSpeed(HACK_SPEEDS[Math.max(0, (i < 0 ? 3 : i) - 1)]);
+  else if (e.key === ']') setHackSpeed(HACK_SPEEDS[Math.min(HACK_SPEEDS.length - 1, (i < 0 ? 3 : i) + 1)]);
+  else if (e.key === '\\') { HACKS.frozen = true; hackBadge(); }
+});
+window.addEventListener('keyup', e => { if (e.key === '\\' && HACKS.frozen) { HACKS.frozen = false; hackBadge(); } });
+/* the admin panel in another tab changed hacks or best scores: pick them up straight away */
+window.addEventListener('storage', e => {
+  if (e.key === 'gp-hacks') { HACKS = window.GP_HACKS = loadHacks(); hackBadge(); toast(HACKS.on ? 'Hacks on: ' + HACKS.speed + '× speed' : 'Hacks off', 1400); }
+  if (e.key === 'gp') { S = load(); if (current) $('#player-best').textContent = S.best[current.id] || 0; render(); }
+});
 $('#player-open').onclick = () => { const u = current && (current.url || current.origUrl); if (u) window.open(u, '_blank', 'noopener'); };
 $('#player-restart').onclick = () => { if (api && api._restart) api._restart(); else if (current) openGame(current.id); };
 $('#player-fav').onclick = () => current && toggleFav(current.id);

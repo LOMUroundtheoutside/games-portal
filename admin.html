@@ -41,6 +41,7 @@
   <button class="chip active" data-tab="games">🎮 Games</button>
   <button class="chip" data-tab="site">🏷️ Site</button>
   <button class="chip" data-tab="links">🔗 Links</button>
+  <button class="chip" data-tab="hacks">🧪 Hacks</button>
   <button class="chip" data-tab="stats">📊 Stats</button>
   <button class="chip" data-tab="publish">🚀 Publish</button>
   <span class="chip-count" id="admin-count"></span>
@@ -159,6 +160,47 @@
       </div>
       <label class="check"><input type="checkbox" id="l-newtab"> Open in a new tab</label>
       <div id="l-list" class="custom-list"></div>
+    </div>
+  </section>
+
+  <!-- Hacks -->
+  <section class="tab" data-tab="hacks" hidden>
+    <div class="cols">
+      <div class="panel-card">
+        <h3>🧪 Hacks</h3>
+        <p class="hint">Cheats for <b>this browser only</b>. They work on every game built into the portal (originals, racing, remixes, 3D). Web games run in their own box, so nothing here can touch them. Changes land the moment you tick them, even in a portal tab that is already open.</p>
+        <label class="check"><input type="checkbox" id="h-on"> <b>Hacks on</b></label>
+        <label class="check"><input type="checkbox" id="h-keys"> <span>Hotkeys in a game: <code>[</code> slower · <code>]</code> faster · hold <code>\</code> to freeze</span></label>
+        <div class="field">Game speed
+          <div class="row" id="h-speed"></div>
+        </div>
+        <div class="field">Score multiplier (best scores count ×)
+          <div class="row" id="h-score"></div>
+        </div>
+      </div>
+
+      <div class="panel-card">
+        <h3>🏆 Best scores</h3>
+        <p class="hint">The "Best" number shown in the player. Stored in this browser.</p>
+        <div class="row">
+          <select id="h-game"></select>
+          <input id="h-best" type="number" min="0" step="1" placeholder="score" class="narrow">
+          <button class="btn ghost" id="h-best-set">Set</button>
+        </div>
+        <div class="row">
+          <button class="btn ghost" id="h-best-max">Max out every best (999,999)</button>
+          <button class="btn ghost" id="h-best-wipe">Wipe every best</button>
+        </div>
+      </div>
+
+      <div class="panel-card">
+        <h3>🔓 Unlocks</h3>
+        <p class="hint">Progress that games keep in this browser.</p>
+        <div class="row">
+          <button class="btn ghost" id="h-nights">Night Shift games: unlock all 5 nights</button>
+          <button class="btn ghost" id="h-nights-reset">…lock them again</button>
+        </div>
+      </div>
     </div>
   </section>
 

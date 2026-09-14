@@ -333,3 +333,6 @@ kbd {
 /* pinned games get the badge slot under the star, so a high score can keep the corner */
 .badge.pin { top: 44px; right: 8px; left: auto; background: var(--accent); font-size: .75rem; }
 .admin-link { color: var(--accent); font-weight: 700; text-decoration: underline; }
+
+/* hacks badge in the player bar (admin panel -> Hacks) */
+.hacks-badge { display: inline-block; margin-left: .5rem; padding: .1rem .5rem; border-radius: 999px; font-size: .75rem; font-weight: 700; background: #a21caf; color: #fff; letter-spacing: .02em; }

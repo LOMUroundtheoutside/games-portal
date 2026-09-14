@@ -89,6 +89,7 @@ site, on the live site as well as the copy in this folder. Passcode: **150812**
 | 🎮 Games | Every game in one table: switch a game off, rename it, change its emoji, move it to another category, or 📌 pin it to the front. Search, filter by category, and bulk "hide everything listed" |
 | 🏷️ Site | Site name, tab emoji, home-page headline, a coloured banner across the top, what theme and panic key a brand-new visitor starts with, and switches for the chat, web games and My links sections |
 | 🔗 Links | Links added for *everybody* (Settings → My links only adds them for one browser) |
+| 🧪 Hacks | Cheats for **this browser only**: a master switch, game speed (0.25× slow-mo to 3× turbo), a score multiplier for best scores, in-game hotkeys (`[` slower, `]` faster, hold `\` to freeze), set / max out / wipe best scores, and unlock all five nights in the Night Shift games. Works on every game built into the portal; web games run in an iframe and cannot be touched. Stored in `localStorage['gp-hacks']`, never in `site-config.js` |
 | 📊 Stats | Games in the portal, plays, favourites, most-played chart and a category breakdown. Counted in your own browser: there is no server, so nobody else's plays reach it |
 | 🚀 Publish | The generated file, a download button and the git commands |
 

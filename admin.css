@@ -89,3 +89,6 @@
 }
 .preview { max-height: 420px; }
 .dev-tag { background: var(--danger); }
+
+/* hacks tab pills */
+.pill.on { background: #a21caf; color: #fff; border-color: #a21caf; }
