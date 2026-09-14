@@ -45,6 +45,8 @@
   <span class="chip-count" id="stat-count"></span>
 </nav>
 
+<div class="announce" id="announce" hidden></div>
+
 <div class="layout">
   <main class="content">
     <section class="hero" id="hero">
@@ -144,15 +146,17 @@
       <label class="check"><input type="checkbox" id="set-sound" checked> Sound effects</label>
     </div>
 
-    <h3>🔗 My links</h3>
-    <p class="hint">Add any game you find on the web. It opens inside this page.</p>
-    <div class="row">
-      <input id="add-name" type="text" placeholder="Name">
-      <input id="add-url" type="url" placeholder="https://…">
-      <button class="btn" id="add-link">Add</button>
+    <div id="my-links-section">
+      <h3>🔗 My links</h3>
+      <p class="hint">Add any game you find on the web. It opens inside this page.</p>
+      <div class="row">
+        <input id="add-name" type="text" placeholder="Name">
+        <input id="add-url" type="url" placeholder="https://…">
+        <button class="btn" id="add-link">Add</button>
+      </div>
+      <label class="check"><input type="checkbox" id="add-newtab"> Open in a new tab (needed for sites that refuse to be embedded)</label>
+      <div id="custom-list" class="custom-list"></div>
     </div>
-    <label class="check"><input type="checkbox" id="add-newtab"> Open in a new tab (needed for sites that refuse to be embedded)</label>
-    <div id="custom-list" class="custom-list"></div>
 
     <h3>🧹 Data</h3>
     <div class="row">
@@ -160,6 +164,7 @@
       <button class="btn ghost" id="import-data">Import</button>
       <button class="btn danger" id="reset-data">Reset everything</button>
     </div>
+    <p class="hint"><a href="admin.html" id="open-admin" class="admin-link">🛠️ Admin panel</a> — hide games, rename them, pin favourites and set what new visitors see.</p>
   </div>
 </div>
 
@@ -194,6 +199,7 @@
 
 <script src="games.js"></script>
 <script src="racing.js"></script>
+<script src="dirtbike.js"></script>
 <script src="remix-a.js"></script>
 <script src="remix-b.js"></script>
 <script src="remix-c.js"></script>
@@ -203,6 +209,7 @@
 <script src="three-d.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.10.1/mqtt.min.js"></script>
 <script src="weblinks.js"></script>
+<script src="site-config.js"></script>
 <script src="app.js"></script>
 <script src="chat.js"></script>
 </body>

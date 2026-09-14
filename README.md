@@ -78,6 +78,47 @@ For links you add yourself (Settings → My links) there is an "Open in a new
 tab" tick box, and the ↗ button in the player bar opens any embedded link in a
 new tab if the frame stays blank.
 
+## Admin panel
+
+`admin.html` (also linked from ⚙️ Settings) is the control room for the whole
+site. Passcode: **portal-admin** — change it in the panel's Site tab.
+
+| Tab | What it does |
+|-----|--------------|
+| 🎮 Games | Every game in one table: switch a game off, rename it, change its emoji, move it to another category, or 📌 pin it to the front. Search, filter by category, and bulk "hide everything listed" |
+| 🏷️ Site | Site name, tab emoji, home-page headline, a coloured banner across the top, what theme and panic key a brand-new visitor starts with, and switches for the chat, web games and My links sections |
+| 🔗 Links | Links added for *everybody* (Settings → My links only adds them for one browser) |
+| 📊 Stats | Games in the portal, plays, favourites, most-played chart and a category breakdown. Counted in your own browser: there is no server, so nobody else's plays reach it |
+| 🚀 Publish | The generated file, a download button and the git commands |
+
+It all lands in **`site-config.js`**, the one file the portal loads for every
+visitor. Two buttons get changes out:
+
+* **Apply here** keeps a copy in your own browser (`localStorage['gp-site']`),
+  so you can look at it before anyone else does. Nothing else changes.
+* **Download site-config.js** gives you the file. Drop it in this folder over
+  the old one, then:
+
+```sh
+git add site-config.js
+git commit -m "Admin: update site config"
+git push
+```
+
+GitHub Pages rebuilds and everybody gets it. "Drop my local preview" on the
+Publish tab clears the browser copy and puts you back on the committed file.
+
+A hidden game disappears from the grid, search, favourites and recent, but its
+code is still there, so a favourite or a remix link never breaks.
+
+The passcode guards the page, not the data: anyone can read `site-config.js` on
+the live site, so it is a door, not a safe. Locked out? Set `admin.hash` in
+`site-config.js` to `''` and reload.
+
+`node tools/admin-check.js` drives the whole thing in a headless Chromium: it
+unlocks the panel, hides, pins and renames a game, checks the generated file is
+valid JavaScript, applies it and reloads the portal to prove the change landed.
+
 ## Chat
 
 Click 💬 in the top bar. Rooms:
@@ -118,11 +159,15 @@ also allowed.
 | `style.css` | All styling; five colour themes live at the top in `:root` / `[data-theme]` |
 | `games.js` | The mini engine (`makeApi`) plus the 13 original games as objects in the `GAMES` array |
 | `racing.js` | The 20 racing games. Shared helpers live in `RC` (held-key tracker, car sprite, spline track) and three engines: `RC.road3d` (pseudo-3D road), `RC.circuit` (top-down track with AI rivals) and `RC.hills` (side-view terrain physics) |
+| `dirtbike.js` | Wheelie King: a side-view dirt bike wheelie game with its own physics (balance point, kickers, backflips, combo), scenery and engine sound. Racing category |
 | `remix-a.js` … `remix-e.js` | The 26 remixes: A idle/platform/rhythm, B pseudo-3D runners, C driving, D sports (1P or 2P), E night-shift survival |
 | `tools/smoke.js` | Headless smoke test for a game file (see Remixes) |
 | `app.js` | Catalogue, search/sort, favourites, player, panic button, settings, storage, live/dev tab icon |
 | `weblinks.js` | Games on other sites that open in a new tab (they block embedding) |
 | `chat.js` | The chat drawer: room codes, invite links, the MQTT relay connection, message log |
+| `site-config.js` | What the admin panel writes: hidden games, renames, pins, banner, site name, defaults. Every visitor loads it |
+| `admin.html` / `admin.js` / `admin.css` | The admin panel |
+| `tools/admin-check.js` | Headless end-to-end check of the admin panel and the portal it changes |
 
 ## Adding a game
 

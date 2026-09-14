@@ -5,22 +5,26 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 function makeApi(stage, hooks) {
   const cleanups = [];
   const api = {
-    canvas(w, h) {
+    canvas(w, h, scale = 1) {
+      /* scale > 1 gives a high-resolution backing store (crisp in fullscreen) that still lays out at w x h */
       const c = document.createElement('canvas');
-      c.width = w; c.height = h; stage.appendChild(c);
+      c.width = w * scale; c.height = h * scale; stage.appendChild(c);
+      const natural = scale === 1 ? '' : null;
+      if (scale !== 1) { c.style.width = w + 'px'; c.style.height = h + 'px'; c.style.imageRendering = 'auto'; }
       /* in fullscreen, scale up to fill the stage without changing the game's shape (games map pointer
          positions through getBoundingClientRect, so their maths still works); natural size otherwise —
          in the normal window the stage's height comes from the canvas, so fitting there would feed back */
       const fit = () => {
         const full = document.fullscreenElement && document.fullscreenElement.contains(stage);
-        if (!full) { c.style.width = c.style.height = ''; return; }
+        if (!full) { c.style.width = natural ?? w + 'px'; c.style.height = natural ?? h + 'px'; return; }
         const s = Math.min(stage.clientWidth / w, stage.clientHeight / h); if (!(s > 0)) return;
         c.style.width = Math.floor(w * s) + 'px'; c.style.height = Math.floor(h * s) + 'px';
       };
       api.on(document, 'fullscreenchange', fit);
       api.on(window, 'resize', fit);
       if (typeof ResizeObserver !== 'undefined') { const ro = new ResizeObserver(fit); ro.observe(stage); cleanups.push(() => ro.disconnect()); }
-      return { c, x: c.getContext('2d') };
+      const x = c.getContext('2d'); if (scale !== 1) x.scale(scale, scale);
+      return { c, x };
     },
     dom(cls) {
       const d = document.createElement('div');
