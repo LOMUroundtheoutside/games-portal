@@ -8,6 +8,18 @@ function makeApi(stage, hooks) {
     canvas(w, h) {
       const c = document.createElement('canvas');
       c.width = w; c.height = h; stage.appendChild(c);
+      /* in fullscreen, scale up to fill the stage without changing the game's shape (games map pointer
+         positions through getBoundingClientRect, so their maths still works); natural size otherwise —
+         in the normal window the stage's height comes from the canvas, so fitting there would feed back */
+      const fit = () => {
+        const full = document.fullscreenElement && document.fullscreenElement.contains(stage);
+        if (!full) { c.style.width = c.style.height = ''; return; }
+        const s = Math.min(stage.clientWidth / w, stage.clientHeight / h); if (!(s > 0)) return;
+        c.style.width = Math.floor(w * s) + 'px'; c.style.height = Math.floor(h * s) + 'px';
+      };
+      api.on(document, 'fullscreenchange', fit);
+      api.on(window, 'resize', fit);
+      if (typeof ResizeObserver !== 'undefined') { const ro = new ResizeObserver(fit); ro.observe(stage); cleanups.push(() => ro.disconnect()); }
       return { c, x: c.getContext('2d') };
     },
     dom(cls) {
