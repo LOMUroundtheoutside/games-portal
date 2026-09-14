@@ -129,7 +129,8 @@ const server = http.createServer((req, res) => {
   await ev("document.getElementById('h-game').value='3d:slope'; document.getElementById('h-best').value='4242'; document.getElementById('h-best-set').click()");
   ok('best score set', (await ev("JSON.parse(localStorage.getItem('gp')).best['3d:slope']")) === 4242);
   ok('web games not in the list', await ev("[...document.querySelectorAll('#h-game option')].every(o => !o.value.startsWith('web:'))"));
-  await ev("document.getElementById('h-nights').click()");
+  await ev("document.getElementById('h-nights').click(); document.getElementById('h-crumb').click()");
+  ok('golden crumb hack saved', (await ev("JSON.parse(localStorage.getItem('gp-hacks')).crumbX")) === 1000000);
   ok('nights unlocked', (await ev("localStorage.getItem('gp-remix-remix:lighthouse-watch')")) === '5');
   await shot('05b-hacks');
   await ev("document.querySelector('.chip[data-tab=publish]').click()");
@@ -161,6 +162,12 @@ const server = http.createServer((req, res) => {
   ok('\\ freezes', await ev("GP_HACKS.frozen === true && document.getElementById('player-hacks').textContent.includes('FROZEN')"));
   await ev("window.dispatchEvent(new KeyboardEvent('keyup', {key: '\\\\'}))");
   ok('release unfreezes', await ev("GP_HACKS.frozen === false"));
+  await ev("closeGame(); openGame('remix:biscuit-empire')"); await sleep(600);
+  const bis = await ev("document.querySelector('#stage canvas')._biscuit()");
+  ok('Biscuit Empire rush is ×1,000,000', bis && bis.rushX === 1000000, JSON.stringify(bis));
+  await ev("GP_HACKS.on = false");
+  ok('…and ×7 with hacks off', (await ev("document.querySelector('#stage canvas')._biscuit().rushX")) === 7);
+  await ev("GP_HACKS.on = true; closeGame(); openGame('3d:slope')"); await sleep(1200);
   ok('score hook multiplies', await ev("api.score(10); document.getElementById('player-best').textContent") === '4242' && await ev("api.score(1000); document.getElementById('player-best').textContent") === '10000');
   await shot('06-game');
   await ev('closeGame()');

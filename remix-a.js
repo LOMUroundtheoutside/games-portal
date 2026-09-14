@@ -23,7 +23,9 @@ GAMES.push(
     ];
     const KEY = 'biscuit-empire';
     let pts, total, owned, prest, rush, crumb, crumbT, pulse, floaters, offline, saveT;
-    const mult = () => (1 + prest * .5) * (rush > 0 ? 7 : 1);
+    /* Golden Crumb rush: ×7, or whatever the admin panel's Hacks tab says */
+    const RUSHX = () => { const h = window.GP_HACKS; return h && h.on && h.crumbX > 0 ? h.crumbX : 7; };
+    const mult = () => (1 + prest * .5) * (rush > 0 ? RUSHX() : 1);
     const rate = () => owned.reduce((s, n, i) => s + n * SHOP[i][2], 0) * (1 + prest * .5);
     const cost = i => Math.ceil(SHOP[i][1] * Math.pow(1.15, owned[i]));
     function load() {
@@ -38,6 +40,7 @@ GAMES.push(
     function save() { store.set(KEY, { pts, total, owned, prest, t: Date.now() }); }
     function reset() {
       load(); rush = 0; crumb = null; crumbT = 20000 + rnd(30000); pulse = 0; floaters = []; saveT = 0;
+      c._biscuit = () => ({ rushX: RUSHX(), mult: mult(), pts, rush });
       api.score(Math.floor(total));
       api.overlay(`<b>Biscuit Empire</b>${offline > 0 ? 'Welcome back! Your ovens baked ' + fmt(offline) + ' biscuits while you were away.<br>' : ''}<small>click / tap to start baking</small>`);
     }
@@ -62,7 +65,7 @@ GAMES.push(
       if (!started) { started = true; api.overlay(null); return; }
       if (stage.querySelector && stage.querySelector('.overlay')) { api.overlay(null); return; }
       const p = cpos(c, e);
-      if (crumb && Math.hypot(p.x - crumb.x, p.y - crumb.y) < 22) { crumb = null; rush = 12000; api.beep(1500, .15); float(p.x, p.y, '×7 RUSH!'); return; }
+      if (crumb && Math.hypot(p.x - crumb.x, p.y - crumb.y) < 22) { crumb = null; rush = 12000; api.beep(1500, .15); float(p.x, p.y, '×' + fmt(RUSHX()) + ' RUSH!'); return; }
       if (Math.hypot(p.x - 150, p.y - 215) < 90) { clickBiscuit(p.x, p.y); return; }
       if (p.x > 300 && p.y > 40 && p.y < 40 + SHOP.length * 50) { buy(Math.floor((p.y - 40) / 50)); return; }
       if (p.x > 300 && p.y > 350) prestige();
@@ -99,7 +102,7 @@ GAMES.push(
       if (rush > 0) { x.fillStyle = `rgba(251,191,36,${.1 + .1 * Math.sin(performance.now() / 100)})`; x.fillRect(0, 0, W, H); }
       biscuit(150, 215, 80 + pulse * 10);
       RC.text(x, fmt(pts) + ' biscuits', 150, 30, 20, '#fde68a', 'center');
-      RC.text(x, fmt(rate() * (rush > 0 ? 7 : 1)) + ' / sec' + (rush > 0 ? '  ×7 RUSH ' + Math.ceil(rush / 1000) + 's' : ''), 150, 52, 12, rush > 0 ? '#fbbf24' : '#fcd34d', 'center');
+      RC.text(x, fmt(rate() * (rush > 0 ? RUSHX() : 1)) + ' / sec' + (rush > 0 ? '  ×' + fmt(RUSHX()) + ' RUSH ' + Math.ceil(rush / 1000) + 's' : ''), 150, 52, 12, rush > 0 ? '#fbbf24' : '#fcd34d', 'center');
       RC.text(x, 'Baked all time: ' + fmt(total), 150, 330, 12, '#d6d3d1', 'center');
       if (prest) RC.text(x, 'Prestige ' + prest + ' · ×' + (1 + prest * .5).toFixed(1), 150, 350, 12, '#c084fc', 'center');
       SHOP.forEach((s, i) => {

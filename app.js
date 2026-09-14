@@ -72,7 +72,7 @@ let S = load();
    Set in the admin panel (Hacks tab), kept in this browser only (localStorage 'gp-hacks').
    Read live by the game engine (window.GP_HACKS) so they only reach the games built into
    this portal; a web game in an iframe cannot be touched. */
-const HACKS_DEFAULT = { on: false, speed: 1, scoreX: 1, keys: true };
+const HACKS_DEFAULT = { on: false, speed: 1, scoreX: 1, keys: true, crumbX: 0 };
 const HACK_SPEEDS = [0.25, 0.5, 0.75, 1, 1.5, 2, 3];
 function loadHacks() { try { return { ...HACKS_DEFAULT, ...JSON.parse(localStorage.getItem('gp-hacks') || '{}'), frozen: false }; } catch { return { ...HACKS_DEFAULT, frozen: false }; } }
 let HACKS = window.GP_HACKS = loadHacks();

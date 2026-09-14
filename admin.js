@@ -333,7 +333,7 @@ window.SITE_CONFIG = {
 `;
 }
 /* ---------- hacks (this browser only, localStorage 'gp-hacks'; app.js reads it live) ---------- */
-const HACKS_DEFAULT = { on: false, speed: 1, scoreX: 1, keys: true };
+const HACKS_DEFAULT = { on: false, speed: 1, scoreX: 1, keys: true, crumbX: 0 };
 const HACK_SPEEDS = [0.25, 0.5, 0.75, 1, 1.5, 2, 3], HACK_SCORES = [1, 2, 5, 10, 100];
 const NIGHT_GAMES = ['remix:arcade-nightshift', 'remix:toyshop-lockin', 'remix:lighthouse-watch', 'remix:nursery-night'];
 function loadHacks() { try { return { ...HACKS_DEFAULT, ...JSON.parse(localStorage.getItem('gp-hacks') || '{}') }; } catch { return { ...HACKS_DEFAULT }; } }
@@ -343,7 +343,7 @@ function saveHacks() { try { localStorage.setItem('gp-hacks', JSON.stringify(H))
 const portalState = () => { try { return JSON.parse(localStorage.getItem('gp') || '{}'); } catch { return {}; } };
 const savePortalState = s => { try { localStorage.setItem('gp', JSON.stringify(s)); } catch {} };
 function renderHacks() {
-  $('#h-on').checked = !!H.on; $('#h-keys').checked = !!H.keys;
+  $('#h-on').checked = !!H.on; $('#h-keys').checked = !!H.keys; $('#h-crumb').checked = H.crumbX > 0;
   const pills = (box, vals, cur, fmt, set) => {
     box.innerHTML = vals.map(v => `<button class="btn ghost pill ${v === cur ? 'on' : ''}" data-v="${v}">${fmt(v)}</button>`).join('');
     [...box.querySelectorAll('.pill')].forEach(b => b.onclick = () => set(+b.dataset.v));
@@ -357,6 +357,7 @@ function renderHacks() {
 }
 $('#h-on').onchange = e => { H.on = e.target.checked; saveHacks(); toast(H.on ? 'Hacks on' : 'Hacks off'); };
 $('#h-keys').onchange = e => { H.keys = e.target.checked; saveHacks(); };
+$('#h-crumb').onchange = e => { H.crumbX = e.target.checked ? 1000000 : 0; saveHacks(); toast(H.crumbX ? 'Golden Crumb: ×1,000,000 (needs Hacks on)' : 'Golden Crumb back to ×7'); };
 $('#h-best-set').onclick = () => {
   const id = $('#h-game').value, n = Math.max(0, Math.floor(+$('#h-best').value || 0));
   const s = portalState(); s.best = s.best || {}; s.best[id] = n; savePortalState(s); renderHacks(); toast('Best for ' + (orig(id) || {}).title + ' is now ' + n);
